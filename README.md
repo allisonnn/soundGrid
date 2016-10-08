@@ -1,2 +1,2 @@
 # soundGrid
-Interactive installation made my openframeworks
+Interactive installation made by openframeworks
