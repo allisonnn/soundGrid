@@ -1,10 +1,5 @@
 #include "ofApp.h"
 
-/*
- If you are struggling to get the device to connect ( especially Windows Users )
- please look at the ReadMe: in addons/ofxKinect/README.md
- */
-
 //--------------------------------------------------------------
 void ofApp::setup() {
     ofSetLogLevel(OF_LOG_VERBOSE);
@@ -42,6 +37,11 @@ void ofApp::setup() {
     // zero the tilt on startup
     angle = 3;
     kinect.setCameraTiltAngle(angle);
+    
+    //sounds
+    planet0.load("sounds/synth.wav");
+    planet1.load("sounds/1085.mp3");
+    planet2.load("sounds/Violet.mp3");
 }
 
 //--------------------------------------------------------------
@@ -50,6 +50,7 @@ void ofApp::update() {
     ofBackground(100, 100, 100);
     
     kinect.update();
+    ofSoundUpdate();
     
     // there is a new frame and we are connected
     if(kinect.isFrameNew()) {
@@ -85,7 +86,11 @@ void ofApp::update() {
         // find contours which are between the size of 20 pixels and 1/3 the w*h pixels.
         // also, find holes is set to true so we will get interior contours as well....
         contourFinder.findContours(grayImage, 5, (kinect.width*kinect.height)/9, 1, false);
-//        ofLogNotice() << kinect.width;
+        
+        //analyze position
+        if (point.x < kinect.width/3 && point.y < kinect.height/3) {
+            planet0.play();
+        }
     }
     
 }
@@ -134,12 +139,17 @@ void ofApp::draw() {
     
     
     if (contourFinder.blobs.size() > 0) {
-        ofSetColor(0, 0, 255);
         point = contourFinder.blobs[0].centroid;
+        ofSetColor(255, 0, 0);
+        ofDrawCircle(point, 5.0);
     }
     
-    ofSetColor(255, 0, 0);
-    ofDrawCircle(point, 5.0);
+    //Grid
+    ofSetColor(0, 0, 255);
+    ofDrawLine(kinect.width/3, 0, kinect.width/3, kinect.height);
+    ofDrawLine(kinect.width/3 * 2, 0, kinect.width/3 * 2, kinect.height);
+    ofDrawLine(0, kinect.height/3, kinect.width, kinect.height/3);
+    ofDrawLine(0, kinect.height/3 * 2, kinect.width, kinect.height/3 * 2);
 }
 
 //--------------------------------------------------------------

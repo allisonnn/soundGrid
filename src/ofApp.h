@@ -3,6 +3,7 @@
 #include "ofMain.h"
 #include "ofxOpenCv.h"
 #include "ofxKinect.h"
+#include "ofxOsc.h"
 
 class ofApp : public ofBaseApp {
 public:
@@ -40,4 +41,9 @@ public:
     int angle;
     
     ofPoint point;
+    
+    //sounds
+    ofSoundPlayer planet0;
+    ofSoundPlayer planet1;
+    ofSoundPlayer planet2;
 };
