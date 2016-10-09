@@ -40,4 +40,9 @@ public:
     int angle;
     
     ofPoint point;
+    
+    //sounds
+    ofSoundPlayer planet0;
+    ofSoundPlayer planet1;
+    ofSoundPlayer planet2;
 };
