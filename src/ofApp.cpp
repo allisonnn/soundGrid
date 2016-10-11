@@ -1,5 +1,7 @@
 #include "ofApp.h"
 
+#define PORT 12345
+
 //--------------------------------------------------------------
 void ofApp::setup() {
     ofSetLogLevel(OF_LOG_VERBOSE);
@@ -42,6 +44,10 @@ void ofApp::setup() {
     planet0.load("sounds/synth.wav");
     planet1.load("sounds/1085.mp3");
     planet2.load("sounds/Violet.mp3");
+    
+    //osc
+    sender.setup("localhost", PORT);
+    receiver.setup(12000);
 }
 
 //--------------------------------------------------------------
@@ -88,11 +94,30 @@ void ofApp::update() {
         contourFinder.findContours(grayImage, 5, (kinect.width*kinect.height)/9, 1, false);
         
         //analyze position
-        if (point.x < kinect.width/3 && point.y < kinect.height/3) {
-            planet0.play();
+        if (point.x > kinect.width/3 && point.y > kinect.height/3) {
+//            planet0.play();
+            ofLogNotice() << point;
+            sendMessage("song0");
         }
     }
     
+    //osc receiver
+    while (receiver.hasWaitingMessages()) {
+        ofxOscMessage receivedMessage;
+        receiver.getNextMessage(&receivedMessage);
+        
+        if (receivedMessage.getAddress() == "/digital/8") {
+            int digital = receivedMessage.getArgAsInt(0);
+            ofLogNotice() << digital;
+        }
+    }
+}
+
+void ofApp::sendMessage(string m) {
+    ofxOscMessage message;
+    message.setAddress("/songName");
+    message.addStringArg(m);
+    sender.sendMessage(message);
 }
 
 //--------------------------------------------------------------

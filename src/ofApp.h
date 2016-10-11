@@ -23,6 +23,8 @@ public:
     void mouseExited(int x, int y);
     void windowResized(int w, int h);
     
+    void sendMessage(string m);
+    
     ofxKinect kinect;
     
     ofxCvColorImage colorImg;
@@ -46,4 +48,8 @@ public:
     ofSoundPlayer planet0;
     ofSoundPlayer planet1;
     ofSoundPlayer planet2;
+    
+    //osc
+    ofxOscSender sender;
+    ofxOscReceiver receiver;
 };
