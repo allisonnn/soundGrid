@@ -1,7 +1,5 @@
 #include "ofApp.h"
 
-#define PORT 12345
-
 //--------------------------------------------------------------
 void ofApp::setup() {
     ofSetLogLevel(OF_LOG_VERBOSE);
@@ -40,13 +38,15 @@ void ofApp::setup() {
     angle = 3;
     kinect.setCameraTiltAngle(angle);
     
+    kpt.loadCalibration("calibration_data/calibration.xml");
+    
     //sounds
-    planet0.load("sounds/synth.wav");
+    planet0.load("sounds/1085.mp3");
     planet1.load("sounds/1085.mp3");
     planet2.load("sounds/Violet.mp3");
     
     //osc
-    sender.setup("localhost", PORT);
+    sender.setup(IP_ADDRESS, PORT);
     receiver.setup(12000);
 }
 
@@ -91,13 +91,15 @@ void ofApp::update() {
         
         // find contours which are between the size of 20 pixels and 1/3 the w*h pixels.
         // also, find holes is set to true so we will get interior contours as well....
-        contourFinder.findContours(grayImage, 5, (kinect.width*kinect.height)/9, 1, false);
+        contourFinder.findContours(grayImage, 300, (kinect.width*kinect.height)/9, 1, false);
         
         //analyze position
-        if (point.x > kinect.width/3 && point.y > kinect.height/3) {
-//            planet0.play();
-            ofLogNotice() << point;
-            sendMessage("song0");
+        ofVec3f worldPoint = kinect.getWorldCoordinateAt(point.x, point.y);
+        ofVec2f projectedPoint = kpt.getProjectedPoint(worldPoint);
+        ofVertex(PROJECTOR_RESOLUTION_X * projectedPoint.x, PROJECTOR_RESOLUTION_Y * projectedPoint.y);
+        
+        if (point.x < kinect.width/3) {
+            ofLogNotice() << "";
         }
     }
     
@@ -118,6 +120,7 @@ void ofApp::sendMessage(string m) {
     message.setAddress("/songName");
     message.addStringArg(m);
     sender.sendMessage(message);
+    ofLogNotice() << m;
 }
 
 //--------------------------------------------------------------
@@ -170,11 +173,16 @@ void ofApp::draw() {
     }
     
     //Grid
-    ofSetColor(0, 0, 255);
+    ofSetColor(0, 255, 0);
     ofDrawLine(kinect.width/3, 0, kinect.width/3, kinect.height);
     ofDrawLine(kinect.width/3 * 2, 0, kinect.width/3 * 2, kinect.height);
     ofDrawLine(0, kinect.height/3, kinect.width, kinect.height/3);
     ofDrawLine(0, kinect.height/3 * 2, kinect.width, kinect.height/3 * 2);
+}
+
+//--------------------------------------------------------------
+void ofApp::drawSecondWindow (ofEventArgs & args) {
+    
 }
 
 //--------------------------------------------------------------
@@ -240,11 +248,13 @@ void ofApp::keyPressed (int key) {
             break;
             
         case '4':
-            kinect.setLed(ofxKinect::LED_BLINK_GREEN);
+//            kinect.setLed(ofxKinect::LED_BLINK_GREEN);
+            sendMessage("hahahahah");
             break;
             
         case '5':
-            kinect.setLed(ofxKinect::LED_BLINK_YELLOW_RED);
+//            kinect.setLed(ofxKinect::LED_BLINK_YELLOW_RED);
+            ofLogNotice() << "QQQQQQ" << point;
             break;
             
         case '0':
@@ -296,5 +306,9 @@ void ofApp::mouseExited(int x, int y){
 //--------------------------------------------------------------
 void ofApp::windowResized(int w, int h)
 {
+    
+}
+
+void ofApp::logPos(Point p) {
     
 }

@@ -3,7 +3,13 @@
 #include "ofMain.h"
 #include "ofxOpenCv.h"
 #include "ofxKinect.h"
+#include "ofxKinectProjectorToolkit.h"
 #include "ofxOsc.h"
+
+#define PROJECTOR_RESOLUTION_X 1280
+#define PROJECTOR_RESOLUTION_Y 1024
+#define PORT 8001
+#define IP_ADDRESS "127.0.0.1"
 
 class ofApp : public ofBaseApp {
 public:
@@ -11,6 +17,7 @@ public:
     void setup();
     void update();
     void draw();
+    void drawSecondWindow(ofEventArgs& args);
     void exit();
     
     void drawPointCloud();
@@ -24,8 +31,10 @@ public:
     void windowResized(int w, int h);
     
     void sendMessage(string m);
+    void logPos(Point p);
     
     ofxKinect kinect;
+    ofxKinectProjectorToolkit kpt;
     
     ofxCvColorImage colorImg;
     
