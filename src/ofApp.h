@@ -5,11 +5,13 @@
 #include "ofxKinect.h"
 #include "ofxKinectProjectorToolkit.h"
 #include "ofxOsc.h"
+#include "eachGrid.h"
 
 #define PROJECTOR_RESOLUTION_X 1280
 #define PROJECTOR_RESOLUTION_Y 1024
 #define PORT 8001
 #define IP_ADDRESS "127.0.0.1"
+#define NGRIDS 9
 
 class ofApp : public ofBaseApp {
 public:
@@ -61,4 +63,7 @@ public:
     //osc
     ofxOscSender sender;
     ofxOscReceiver receiver;
+    
+    //grid
+    EachGrid grid[NGRIDS];
 };

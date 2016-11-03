@@ -48,6 +48,11 @@ void ofApp::setup() {
     //osc
     sender.setup(IP_ADDRESS, PORT);
     receiver.setup(12000);
+    
+    // grid
+    for(int i=0; i<NGRIDS; i++){
+        grid[i].setup(i);
+    }
 }
 
 //--------------------------------------------------------------
@@ -182,7 +187,9 @@ void ofApp::draw() {
 
 //--------------------------------------------------------------
 void ofApp::drawSecondWindow (ofEventArgs & args) {
-    
+    for(int i=0; i<NGRIDS; i++){
+        grid[i].draw();
+    }
 }
 
 //--------------------------------------------------------------
