@@ -17,8 +17,8 @@ int main( ){
     settings.height = PROJECTOR_RESOLUTION_Y;
     //settings.setPosition(ofVec2f(ofGetScreenWidth(), 0));
     settings.setPosition(ofVec2f(200, 0));
-    settings.resizable = false;
-    settings.decorated = false;
+    //settings.resizable = false;
+    //settings.decorated = false;
     settings.shareContextWith = mainWindow;
     shared_ptr<ofAppBaseWindow> secondWindow = ofCreateWindow(settings);
     secondWindow->setVerticalSync(false);

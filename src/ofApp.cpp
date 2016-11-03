@@ -98,14 +98,20 @@ void ofApp::update() {
         // also, find holes is set to true so we will get interior contours as well....
         contourFinder.findContours(grayImage, 300, (kinect.width*kinect.height)/9, 1, false);
         
-        //analyze position
-        ofVec3f worldPoint = kinect.getWorldCoordinateAt(point.x, point.y);
-        ofVec2f projectedPoint = kpt.getProjectedPoint(worldPoint);
-        ofVertex(PROJECTOR_RESOLUTION_X * projectedPoint.x, PROJECTOR_RESOLUTION_Y * projectedPoint.y);
-        
-        if (point.x < kinect.width/3) {
-            ofLogNotice() << "";
+        if (contourFinder.blobs.size() > 0) {
+            kinectPoint = contourFinder.blobs[0].centroid;
+            ofSetColor(255, 0, 0);
+            ofDrawCircle(kinectPoint, 5.0);
         }
+        
+        //analyze position
+        ofVec3f worldPoint = kinect.getWorldCoordinateAt(kinectPoint.x, kinectPoint.y);
+        ofVec2f projectedPoint = kpt.getProjectedPoint(worldPoint);
+        for (int i = 0; i < NGRIDS; i++) {
+            int nowGrid = grid[i].isIn(projectedPoint);
+        }
+        //ofVertex(PROJECTOR_RESOLUTION_X * projectedPoint.x, PROJECTOR_RESOLUTION_Y * projectedPoint.y);
+
     }
     
     //osc receiver
@@ -117,6 +123,11 @@ void ofApp::update() {
             int digital = receivedMessage.getArgAsInt(0);
             ofLogNotice() << digital;
         }
+    }
+    
+    // grids
+    for (int i = 0; i < NGRIDS; i++ ) {
+        grid[i].update();
     }
 }
 
@@ -171,12 +182,6 @@ void ofApp::draw() {
     ofDrawBitmapString(reportStream.str(), 20, 652);
     
     
-    if (contourFinder.blobs.size() > 0) {
-        point = contourFinder.blobs[0].centroid;
-        ofSetColor(255, 0, 0);
-        ofDrawCircle(point, 5.0);
-    }
-    
     //Grid
     ofSetColor(0, 255, 0);
     ofDrawLine(kinect.width/3, 0, kinect.width/3, kinect.height);
@@ -187,6 +192,7 @@ void ofApp::draw() {
 
 //--------------------------------------------------------------
 void ofApp::drawSecondWindow (ofEventArgs & args) {
+    ofSetBackgroundColor(0, 0, 0);
     for(int i=0; i<NGRIDS; i++){
         grid[i].draw();
     }
@@ -261,7 +267,7 @@ void ofApp::keyPressed (int key) {
             
         case '5':
 //            kinect.setLed(ofxKinect::LED_BLINK_YELLOW_RED);
-            ofLogNotice() << "QQQQQQ" << point;
+            ofLogNotice() << "QQQQQQ" << kinectPoint;
             break;
             
         case '0':

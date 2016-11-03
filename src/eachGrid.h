@@ -18,6 +18,7 @@ public:
     void setup(int _pos);	// setup method, use this to setup your object's initial state
     void update();  // update method, used to refresh your objects properties
     void draw();    // draw method, this where you'll do the object's drawing
+    int isIn(ofVec2f point);
     
     // variables
     float x;        // position
@@ -33,6 +34,11 @@ private:
     
     float margin = 20;
     float side = 216;
+    int gridPos;
+    
+    ofRectangle outerRect;
+    ofPath rectPath;
+    ofVec2f originalPos;
 };
 
 #endif /* eachGrid_h */

@@ -7,8 +7,8 @@
 #include "ofxOsc.h"
 #include "eachGrid.h"
 
-#define PROJECTOR_RESOLUTION_X 1280
-#define PROJECTOR_RESOLUTION_Y 1024
+#define PROJECTOR_RESOLUTION_X 1024
+#define PROJECTOR_RESOLUTION_Y 768
 #define PORT 8001
 #define IP_ADDRESS "127.0.0.1"
 #define NGRIDS 9
@@ -53,7 +53,8 @@ public:
     
     int angle;
     
-    ofPoint point;
+    ofPoint kinectPoint;
+    ofPoint projectorPoint;
     
     //sounds
     ofSoundPlayer planet0;
