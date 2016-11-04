@@ -1,7 +1,5 @@
 #include "ofApp.h"
 
-#define PORT 12345
-
 //--------------------------------------------------------------
 void ofApp::setup() {
     ofSetLogLevel(OF_LOG_VERBOSE);
@@ -30,8 +28,8 @@ void ofApp::setup() {
     grayThreshNear.allocate(kinect.width, kinect.height);
     grayThreshFar.allocate(kinect.width, kinect.height);
     
-    nearThreshold = 236;
-    farThreshold = 200;
+    nearThreshold = 132;
+    farThreshold = 128;
     bThreshWithOpenCV = true;
     
     ofSetFrameRate(60);
@@ -40,14 +38,21 @@ void ofApp::setup() {
     angle = 3;
     kinect.setCameraTiltAngle(angle);
     
+    kpt.loadCalibration("calibration_data/calibration.xml");
+    
     //sounds
-    planet0.load("sounds/synth.wav");
+    planet0.load("sounds/1085.mp3");
     planet1.load("sounds/1085.mp3");
     planet2.load("sounds/Violet.mp3");
     
     //osc
-    sender.setup("localhost", PORT);
+    sender.setup(IP_ADDRESS, PORT);
     receiver.setup(12000);
+    
+    // grid
+    for(int i=0; i<NGRIDS; i++){
+        grid[i].setup(i);
+    }
 }
 
 //--------------------------------------------------------------
@@ -62,43 +67,26 @@ void ofApp::update() {
     if(kinect.isFrameNew()) {
         
         // load grayscale depth image from the kinect source
-        grayImage.setFromPixels(kinect.getDepthPixels());
+        grayImage.setFromPixels(kinect.getDepthPixels(), kinect.width, kinect.height);
         
-        // we do two thresholds - one for the far plane and one for the near plane
-        // we then do a cvAnd to get the pixels which are a union of the two thresholds
-        if(bThreshWithOpenCV) {
-            grayThreshNear = grayImage;
-            grayThreshFar = grayImage;
-            grayThreshNear.threshold(nearThreshold, true);
-            grayThreshFar.threshold(farThreshold);
-            cvAnd(grayThreshNear.getCvImage(), grayThreshFar.getCvImage(), grayImage.getCvImage(), NULL);
-        } else {
-            
-            // or we do it ourselves - show people how they can work with the pixels
-            ofPixels & pix = grayImage.getPixels();
-            int numPixels = pix.size();
-            for(int i = 0; i < numPixels; i++) {
-                if(pix[i] < nearThreshold && pix[i] > farThreshold) {
-                    pix[i] = 255;
-                } else {
-                    pix[i] = 0;
-                }
-            }
-        }
+
+        grayThreshNear = grayImage;
+        grayThreshFar = grayImage;
+        grayThreshNear.threshold(nearThreshold, true);
+        grayThreshFar.threshold(farThreshold);
+        cvAnd(grayThreshNear.getCvImage(), grayThreshFar.getCvImage(), grayImage.getCvImage(), NULL);
         
         // update the cv images
         grayImage.flagImageChanged();
         
+        contourFinder.setMinArea(1000);
+        contourFinder.setMaxArea(7000);
+        contourFinder.findContours(grayImage);
+        
         // find contours which are between the size of 20 pixels and 1/3 the w*h pixels.
         // also, find holes is set to true so we will get interior contours as well....
-        contourFinder.findContours(grayImage, 5, (kinect.width*kinect.height)/9, 1, false);
-        
-        //analyze position
-        if (point.x > kinect.width/3 && point.y > kinect.height/3) {
-//            planet0.play();
-            ofLogNotice() << point;
-            sendMessage("song0");
-        }
+        //contourFinder.findContours(grayImage, 50, (kinect.width*kinect.height)/25, 1, false);
+
     }
     
     //osc receiver
@@ -111,6 +99,11 @@ void ofApp::update() {
             ofLogNotice() << digital;
         }
     }
+    
+    // grids
+    for (int i = 0; i < NGRIDS; i++ ) {
+        grid[i].update();
+    }
 }
 
 void ofApp::sendMessage(string m) {
@@ -118,6 +111,7 @@ void ofApp::sendMessage(string m) {
     message.setAddress("/songName");
     message.addStringArg(m);
     sender.sendMessage(message);
+    ofLogNotice() << m;
 }
 
 //--------------------------------------------------------------
@@ -130,10 +124,11 @@ void ofApp::draw() {
     kinect.drawDepth(kinect.width + 10, 0, kinect.width/2, kinect.height/2);
     kinect.draw(kinect.width + 10, kinect.height/2 + 10, kinect.width/2, kinect.height/2);
     
-    grayImage.draw(0, 0, kinect.width, kinect.height);
+    //grayImage.draw(0, 0, kinect.width, kinect.height);
         
     //https://forum.openframeworks.cc/t/opencv-problem-finding-blob-centroid/16949/4
-    contourFinder.draw(0, 0, kinect.width, kinect.height);
+    grayImage.draw(0, 0);
+    contourFinder.draw();
     
     
     // draw instructions
@@ -149,11 +144,11 @@ void ofApp::draw() {
         << "motor / led / accel controls are not currently supported" << endl << endl;
     }
     
-    reportStream << "using opencv threshold = " << bThreshWithOpenCV <<" (press spacebar)" << endl
-    << "set near threshold " << nearThreshold << " (press: + -)" << endl
-    << "set far threshold " << farThreshold << " (press: < >) num blobs found " << contourFinder.nBlobs
-    << ", fps: " << ofGetFrameRate() << endl
-    << "press c to close the connection and o to open it again, connection is: " << kinect.isConnected() << endl;
+//    reportStream << "using opencv threshold = " << bThreshWithOpenCV <<" (press spacebar)" << endl
+//    << "set near threshold " << nearThreshold << " (press: + -)" << endl
+//    << "set far threshold " << farThreshold << " (press: < >) num blobs found " << contourFinder.nBlobs
+//    << ", fps: " << ofGetFrameRate() << endl
+//    << "press c to close the connection and o to open it again, connection is: " << kinect.isConnected() << endl;
     
     if(kinect.hasCamTiltControl()) {
         reportStream << "press UP and DOWN to change the tilt angle: " << angle << " degrees" << endl
@@ -162,19 +157,63 @@ void ofApp::draw() {
     
     ofDrawBitmapString(reportStream.str(), 20, 652);
     
+    //analyze position
     
-    if (contourFinder.blobs.size() > 0) {
-        point = contourFinder.blobs[0].centroid;
-        ofSetColor(255, 0, 0);
-        ofDrawCircle(point, 5.0);
+//    if (contourFinder.blobs.size() > 0) {
+//        kinectPoint = contourFinder.blobs[0].centroid;
+//        ofSetColor(255, 0, 0);
+//        ofDrawCircle(kinectPoint, 5.0);
+//        
+//        ofVec3f worldPoint = kinect.getWorldCoordinateAt(kinectPoint.x, kinectPoint.y);
+//        ofVec2f projectedPoint = kpt.getProjectedPoint(worldPoint);
+//        
+//        ofLogNotice() << kinectPoint;
+//        
+//        for (int i = 0; i < NGRIDS; i++) {
+//            int nowGrid = grid[i].isIn(ofVec2f (projectedPoint.x * 1024, projectedPoint.y * 768));
+//        }
+//    }
+}
+
+//--------------------------------------------------------------
+void ofApp::drawSecondWindow (ofEventArgs & args) {
+    ofSetBackgroundColor(0, 0, 0);
+    for(int i=0; i<NGRIDS; i++){
+        grid[i].draw();
     }
     
-    //Grid
-    ofSetColor(0, 0, 255);
-    ofDrawLine(kinect.width/3, 0, kinect.width/3, kinect.height);
-    ofDrawLine(kinect.width/3 * 2, 0, kinect.width/3 * 2, kinect.height);
-    ofDrawLine(0, kinect.height/3, kinect.width, kinect.height/3);
-    ofDrawLine(0, kinect.height/3 * 2, kinect.width, kinect.height/3 * 2);
+    RectTracker& tracker = contourFinder.getTracker();
+    for(int i = 0; i < contourFinder.size(); i++) {
+        vector<cv::Point> points = contourFinder.getContour(i);
+        int label = contourFinder.getLabel(i);
+        ofPoint center = toOf(contourFinder.getCenter(i));
+        int age = tracker.getAge(label);
+        
+        // map contour using calibration and draw to main window
+//        ofBeginShape();
+//        ofFill();
+        ofSetColor(ofColor::green);
+//        for (int j=0; j<points.size(); j++) {
+            ofVec3f worldPoint = kinect.getWorldCoordinateAt(center.x, center.y);
+            ofVec2f projectedPoint = kpt.getProjectedPoint(worldPoint);
+            ofDrawCircle(1024 * projectedPoint.x, 768 * projectedPoint.y, 50);
+        for (int i = 0; i < NGRIDS; i++) {
+            ofVec2f point = ofVec2f (projectedPoint.x * 1024, projectedPoint.y * 768);
+            if (point.x >= 128
+                && point.x <= 128 + grid[i].side
+                && point.y >= 0
+                && point.y <= 0 + grid[i].side) {
+                grid[i].rectPath.setFillColor(ofColor::green);
+                ofLogNotice() << "XXXXXXXXXXXXXXXXXXXXXXXXXX";
+            } else {
+                grid[i].rectPath.setFillColor(ofColor::blue);
+                //ofLogNotice() << "JJJJJJJJJJJJ";
+            }
+        }
+//        }
+//        ofEndShape();
+        return;
+    }
 }
 
 //--------------------------------------------------------------
@@ -240,11 +279,13 @@ void ofApp::keyPressed (int key) {
             break;
             
         case '4':
-            kinect.setLed(ofxKinect::LED_BLINK_GREEN);
+//            kinect.setLed(ofxKinect::LED_BLINK_GREEN);
+            sendMessage("hahahahah");
             break;
             
         case '5':
-            kinect.setLed(ofxKinect::LED_BLINK_YELLOW_RED);
+//            kinect.setLed(ofxKinect::LED_BLINK_YELLOW_RED);
+            ofLogNotice() << "QQQQQQ" << kinectPoint;
             break;
             
         case '0':
