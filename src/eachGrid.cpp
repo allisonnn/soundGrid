@@ -34,7 +34,7 @@ void EachGrid::draw() {
     
     //----------DRAW THE OUTER RECTANGLE BY PATH------------//
     
-    //rectPath.draw();
+    rectPath.draw();
     
     //----------DRAW THE INTERNAL RECTANGLE------------//
     ofRectangle internalRect;
@@ -54,13 +54,16 @@ void EachGrid::draw() {
 }
 
 int EachGrid::isIn(ofVec2f point) {
+    ofLogNotice() << point;
     if (point.x >= originalPos.x
         && point.x <= originalPos.x + side
         && point.y >= originalPos.y
         && point.y <= originalPos.y + side) {
         rectPath.setFillColor(ofColor::green);
+        //ofLogNotice() << "XXXXXXXXXXXXXXXXXXXXXXXXXX";
     } else {
         rectPath.setFillColor(ofColor::blue);
+        //ofLogNotice() << "JJJJJJJJJJJJ";
     }
     return gridPos;
 }

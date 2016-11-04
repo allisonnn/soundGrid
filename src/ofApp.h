@@ -2,6 +2,7 @@
 
 #include "ofMain.h"
 #include "ofxOpenCv.h"
+#include "ofxCv.h"
 #include "ofxKinect.h"
 #include "ofxKinectProjectorToolkit.h"
 #include "ofxOsc.h"
@@ -12,6 +13,9 @@
 #define PORT 8001
 #define IP_ADDRESS "127.0.0.1"
 #define NGRIDS 9
+
+using namespace ofxCv;
+using namespace cv;
 
 class ofApp : public ofBaseApp {
 public:
@@ -33,10 +37,11 @@ public:
     void windowResized(int w, int h);
     
     void sendMessage(string m);
-    void logPos(Point p);
+    //void logPos(ofPoint p);
     
     ofxKinect kinect;
     ofxKinectProjectorToolkit kpt;
+    ofxCv::ContourFinder contourFinder;
     
     ofxCvColorImage colorImg;
     
@@ -44,7 +49,7 @@ public:
     ofxCvGrayscaleImage grayThreshNear; // the near thresholded image
     ofxCvGrayscaleImage grayThreshFar; // the far thresholded image
     
-    ofxCvContourFinder contourFinder;
+    //ofxCvContourFinder contourFinder;
     
     bool bThreshWithOpenCV;
     

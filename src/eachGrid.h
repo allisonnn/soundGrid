@@ -30,7 +30,7 @@ public:
     
     EachGrid();
     
-private:
+//private:
     
     float margin = 20;
     float side = 216;
