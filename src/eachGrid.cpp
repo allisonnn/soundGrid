@@ -13,6 +13,7 @@ EachGrid::EachGrid() {
 
 void EachGrid::setup(int _pos) {
     gridPos = _pos;
+    mainMargin = (PROJECTOR_RESOLUTION_X - PROJECTOR_RESOLUTION_Y) / 2;
     generateGrids();
 }
 
@@ -20,13 +21,13 @@ void EachGrid::generateGrids() {
     float outerSide = 2 * margin + side;
 
     //----------CALCULATE THE PATH FOR OUTER RECTANGLE------------//
-    rectPath.rectangle(128 + outerSide * (gridPos % 3), outerSide * (floor(gridPos / 3)), outerSide, outerSide);
+    rectPath.rectangle(mainMargin + outerSide * (gridPos % 3), outerSide * (floor(gridPos / 3)), outerSide, outerSide);
     rectPath.setFillColor(ofColor::blue);
     rectPath.setFilled(true);
     rectPath.setStrokeWidth(0);
     
     //----------CALCULATE THE PATH FOR INTERNAL RECTANGLE------------//
-    internalPath.rectangle(128 + outerSide * (gridPos % 3) + margin, outerSide * (floor(gridPos / 3)) + margin, side, side);
+    internalPath.rectangle(mainMargin + outerSide * (gridPos % 3) + margin, outerSide * (floor(gridPos / 3)) + margin, side, side);
     internalPath.setFillColor(ofColor::red);
     internalPath.setFilled(true);
     internalPath.setStrokeWidth(0);

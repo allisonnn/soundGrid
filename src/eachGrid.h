@@ -11,6 +11,9 @@
 
 #include "ofMain.h"
 
+#define PROJECTOR_RESOLUTION_X 1024
+#define PROJECTOR_RESOLUTION_Y 768
+
 class EachGrid {
     
 public:
@@ -41,6 +44,8 @@ public:
     ofPath rectPath;
     ofPath internalPath;
     ofVec2f originalPos;
+    
+    float mainMargin;
 };
 
 #endif /* eachGrid_h */
