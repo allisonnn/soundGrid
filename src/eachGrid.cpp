@@ -12,45 +12,38 @@ EachGrid::EachGrid() {
 }
 
 void EachGrid::setup(int _pos) {
-    float outerSide = 2 * margin + side;
-    
     gridPos = _pos;
-    rectPath.moveTo(128, 0);
-    rectPath.lineTo(128 + outerSide, 0);
-    rectPath.lineTo(128 + outerSide, outerSide);
-    rectPath.lineTo(128, outerSide);
-    rectPath.close();
+    mainMargin = (PROJECTOR_RESOLUTION_X - PROJECTOR_RESOLUTION_Y) / 2;
+    generateGrids();
+}
+
+void EachGrid::generateGrids() {
+    float outerSide = 2 * margin + side;
+
+    //----------CALCULATE THE PATH FOR OUTER RECTANGLE------------//
+    rectPath.rectangle(mainMargin + outerSide * (gridPos % 3), outerSide * (floor(gridPos / 3)), outerSide, outerSide);
     rectPath.setFillColor(ofColor::blue);
     rectPath.setFilled(true);
     rectPath.setStrokeWidth(0);
+    
+    //----------CALCULATE THE PATH FOR INTERNAL RECTANGLE------------//
+    internalPath.rectangle(mainMargin + outerSide * (gridPos % 3) + margin, outerSide * (floor(gridPos / 3)) + margin, side, side);
+    internalPath.setFillColor(ofColor::red);
+    internalPath.setFilled(true);
+    internalPath.setStrokeWidth(0);
+    
 }
 
 void EachGrid::update() {
-    
+    //rectPath.setFillColor(ofColor::green);
 }
 
 void EachGrid::draw() {
-    float outerSide = 2 * margin + side;
-    
     //----------DRAW THE OUTER RECTANGLE BY PATH------------//
-    
     rectPath.draw();
     
     //----------DRAW THE INTERNAL RECTANGLE------------//
-    ofRectangle internalRect;
-
-    internalRect.x = 128 + outerSide * (gridPos % 3) + margin;
-    internalRect.y = outerSide * (floor(gridPos / 3)) + margin;
-    
-    originalPos.x = internalRect.x;
-    originalPos.y = internalRect.y;
-    
-    internalRect.width = side;
-    internalRect.height = side;
-    
-    ofSetColor(255, 0, 0);
-    
-    ofDrawRectangle(internalRect);
+    internalPath.draw();
 }
 
 int EachGrid::isIn(ofVec2f point) {

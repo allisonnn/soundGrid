@@ -11,11 +11,15 @@
 
 #include "ofMain.h"
 
+#define PROJECTOR_RESOLUTION_X 1024
+#define PROJECTOR_RESOLUTION_Y 768
+
 class EachGrid {
     
 public:
     
     void setup(int _pos);	// setup method, use this to setup your object's initial state
+    void generateGrids();
     void update();  // update method, used to refresh your objects properties
     void draw();    // draw method, this where you'll do the object's drawing
     int isIn(ofVec2f point);
@@ -38,7 +42,10 @@ public:
     
     ofRectangle outerRect;
     ofPath rectPath;
+    ofPath internalPath;
     ofVec2f originalPos;
+    
+    float mainMargin;
 };
 
 #endif /* eachGrid_h */

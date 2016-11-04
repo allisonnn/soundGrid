@@ -37,7 +37,6 @@ public:
     void windowResized(int w, int h);
     
     void sendMessage(string m);
-    //void logPos(ofPoint p);
     
     ofxKinect kinect;
     ofxKinectProjectorToolkit kpt;
@@ -48,8 +47,6 @@ public:
     ofxCvGrayscaleImage grayImage; // grayscale depth image
     ofxCvGrayscaleImage grayThreshNear; // the near thresholded image
     ofxCvGrayscaleImage grayThreshFar; // the far thresholded image
-    
-    //ofxCvContourFinder contourFinder;
     
     bool bThreshWithOpenCV;
     
