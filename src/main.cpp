@@ -25,6 +25,9 @@ int main( ){
     
     shared_ptr<ofApp> mainApp(new ofApp);
     ofAddListener(secondWindow->events().draw, mainApp.get(), &ofApp::drawSecondWindow);
+    ofAddListener(secondWindow->events().exit, mainApp.get(), &ofApp::exitSecondWindow);
+    //TODO: parameters' problem?
+    //ofAddListener(secondWindow->events().mouseMoved, mainApp.get(), &ofApp::mouseMovedSecondWindow);
     
     ofRunApp(mainWindow, mainApp);
     ofRunMainLoop();

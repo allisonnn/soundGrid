@@ -1,20 +1,20 @@
 //
-//  eachGrid.h
+//  Grid.h
 //  soundGrid
 //
 //  Created by Xiao Chen on 2016-11-02.
 //
 //
 
-#ifndef _eachGrid
-#define _eachGrid
+#ifndef _Grid
+#define _Grid
 
 #include "ofMain.h"
 
 #define PROJECTOR_RESOLUTION_X 1024
 #define PROJECTOR_RESOLUTION_Y 768
 
-class EachGrid {
+class Grid {
     
 public:
     
@@ -32,7 +32,7 @@ public:
     int dim;        // size
     ofColor color;  // color using ofColor type
     
-    EachGrid();
+    Grid();
     
 //private:
     
@@ -48,4 +48,4 @@ public:
     float mainMargin;
 };
 
-#endif /* eachGrid_h */
+#endif /* Grid_h */

@@ -1,7 +1,8 @@
 #include "ofApp.h"
 
 //--------------------------------------------------------------
-void ofApp::setup() {
+void ofApp::setup()
+{
     ofSetLogLevel(OF_LOG_VERBOSE);
     
     // enable depth->video image calibration
@@ -23,8 +24,8 @@ void ofApp::setup() {
     grayThreshNear.allocate(kinect.width, kinect.height);
     grayThreshFar.allocate(kinect.width, kinect.height);
     
-    nearThreshold = 132;
-    farThreshold = 128;
+    nearThreshold = 117;
+    farThreshold = 84;
     bThreshWithOpenCV = true;
     
     ofSetFrameRate(60);
@@ -46,12 +47,13 @@ void ofApp::setup() {
     
     // grid
     for(int i=0; i<NGRIDS; i++){
-        grid[i].setup(i);
+        grids[i].setup(i);
     }
 }
 
 //--------------------------------------------------------------
-void ofApp::update() {
+void ofApp::update()
+{
     
     ofBackground(100, 100, 100);
     
@@ -74,7 +76,7 @@ void ofApp::update() {
         grayImage.flagImageChanged();
         
         contourFinder.setMinArea(1000);
-        contourFinder.setMaxArea(7000);
+        contourFinder.setMaxArea(70000);
         contourFinder.findContours(grayImage);
 
     }
@@ -92,8 +94,9 @@ void ofApp::update() {
     
     // grids
     for (int i = 0; i < NGRIDS; i++ ) {
-        grid[i].update();
+        grids[i].update();
     }
+    
 }
 
 void ofApp::sendMessage(string m) {
@@ -105,7 +108,8 @@ void ofApp::sendMessage(string m) {
 }
 
 //--------------------------------------------------------------
-void ofApp::draw() {
+void ofApp::draw()
+{
     
     ofSetColor(255, 255, 255);
     
@@ -166,10 +170,11 @@ void ofApp::draw() {
 }
 
 //--------------------------------------------------------------
-void ofApp::drawSecondWindow (ofEventArgs & args) {
+void ofApp::drawSecondWindow (ofEventArgs & args)
+{
     ofSetBackgroundColor(0, 0, 0);
     for(int i=0; i<NGRIDS; i++){
-        grid[i].draw();
+        grids[i].draw();
     }
     
     RectTracker& tracker = contourFinder.getTracker();
@@ -182,33 +187,62 @@ void ofApp::drawSecondWindow (ofEventArgs & args) {
         ofSetColor(ofColor::green);
         ofVec3f worldPoint = kinect.getWorldCoordinateAt(center.x, center.y);
         ofVec2f projectedPoint = kpt.getProjectedPoint(worldPoint);
-        ofDrawCircle(1024 * projectedPoint.x, 768 * projectedPoint.y, 50);
+        ofDrawCircle(PROJECTOR_RESOLUTION_X * projectedPoint.x, PROJECTOR_RESOLUTION_Y * projectedPoint.y, 50);
         
-        for (int i = 0; i < NGRIDS; i++) {
-            ofVec2f point = ofVec2f (projectedPoint.x * PROJECTOR_RESOLUTION_X, projectedPoint.y * PROJECTOR_RESOLUTION_Y);
-            if (point.x >= grid[i].originalPos.x
-                && point.x <= grid[i].originalPos.x + grid[i].side
-                && point.y >= grid[i].originalPos.y
-                && point.y <= grid[i].originalPos.y + grid[i].side) {
-                grid[i].rectPath.setFillColor(ofColor::green);
-                ofLogNotice() << "XXXXXXXXXXXXXXXXXXXXXXXXXX";
-            } else {
-                grid[i].rectPath.setFillColor(ofColor::blue);
-                //ofLogNotice() << "JJJJJJJJJJJJ";
-            }
-        }
-        return;
+        ofVec2f point = ofVec2f (projectedPoint.x * PROJECTOR_RESOLUTION_X, projectedPoint.y * PROJECTOR_RESOLUTION_Y);
+//        for (int i = 0; i < NGRIDS; i++) {
+//            ofLogNotice() << point;
+//            if (point.x >= 128 + grid[i].originalPos.x
+//                && point.x <= 128 + grid[i].side
+//                && point.y >= 0
+//                && point.y <= 0 + grid[i].side) {
+//                grid[i].rectPath.setFillColor(ofColor::green);
+//                ofLogNotice() << "XXXXXXXXXXXXXXXXXXXXXXXXXX";
+//            } else {
+//                grid[i].rectPath.setFillColor(ofColor::blue);
+//                //ofLogNotice() << "JJJJJJJJJJJJ";
+//            }
+//        }
+    }
+
+    
+    // Uncomment this part to test responding grids
+    int x = ofGetMouseX();
+    int y = ofGetMouseY();
+    //ofLog() << x << "++++++" << y << endl;
+    ofSetColor(0, 0, 230);
+    cursor.circle(x, y, 5);
+    for (int i = 0; i < NGRIDS; i++) {
+        grids[i].isIn(ofVec2f (x, y));
+//        if (x >= grid[i].originalPos.x
+//            && x <= grid[i].originalPos.x + grid[i].side
+//            && y >= grid[i].originalPos.y
+//            && y <= grid[i].originalPos.y + grid[i].side) {
+//            grid[i].rectPath.setFillColor(ofColor::green);
+//            ofLog() << i <<"XXXXXXXXXXXXXXXXXXXXXXXXXX" << endl;
+//        } else {
+//            grid[i].rectPath.setFillColor(ofColor::blue);
+//            //ofLogNotice() << "JJJJJJJJJJJJ";
+//        }
     }
 }
 
 //--------------------------------------------------------------
-void ofApp::exit() {
+void ofApp::exit()
+{
     kinect.setCameraTiltAngle(3); // zero the tilt on exit
     kinect.close();
 }
 
 //--------------------------------------------------------------
-void ofApp::keyPressed (int key) {
+void ofApp::exitSecondWindow(ofEventArgs &args)
+{
+    
+}
+
+//--------------------------------------------------------------
+void ofApp::keyPressed (int key)
+{
     switch (key) {
         case ' ':
             bThreshWithOpenCV = !bThreshWithOpenCV;
@@ -289,6 +323,17 @@ void ofApp::keyPressed (int key) {
             kinect.setCameraTiltAngle(angle);
             break;
     }
+}
+
+//--------------------------------------------------------------
+void ofApp::mouseMoved(ofEventArgs& args)
+{
+    
+}
+
+void ofApp::mouseMovedSecondWindow (ofEventArgs& args)
+{
+
 }
 
 //--------------------------------------------------------------
