@@ -18,7 +18,11 @@ void Grid::setup(int _pos) {
 }
 
 void Grid::generateGrids() {
-    float outerSide = 2 * margin + side;
+    int outerSide = 2 * margin + side;
+    
+    // Set the original position for calculations
+    originalPos.x = mainMargin + outerSide * (gridPos % 3) + margin;
+    originalPos.y = outerSide * (floor(gridPos / 3)) + margin;
 
     //----------CALCULATE THE PATH FOR OUTER RECTANGLE------------//
     rectPath.rectangle(mainMargin + outerSide * (gridPos % 3), outerSide * (floor(gridPos / 3)), outerSide, outerSide);
@@ -27,9 +31,7 @@ void Grid::generateGrids() {
     rectPath.setStrokeWidth(0);
     
     //----------CALCULATE THE PATH FOR INTERNAL RECTANGLE------------//
-    originalPos.x = mainMargin + outerSide * (gridPos % 3) + margin;
-    originalPos.y = outerSide * (floor(gridPos / 3)) + margin;
-    internalPath.rectangle(mainMargin + outerSide * (gridPos % 3) + margin, outerSide * (floor(gridPos / 3)) + margin, side, side);
+    internalPath.rectangle(originalPos.x, originalPos.y, side, side);
     internalPath.setFillColor(ofColor::red);
     internalPath.setFilled(true);
     internalPath.setStrokeWidth(0);
@@ -37,7 +39,7 @@ void Grid::generateGrids() {
 }
 
 void Grid::update() {
-    //rectPath.setFillColor(ofColor::green);
+    
 }
 
 void Grid::draw() {
@@ -48,17 +50,16 @@ void Grid::draw() {
     internalPath.draw();
 }
 
-int Grid::isIn(ofVec2f point) {
+int Grid::getCurrentPosition(ofVec2f point) {
     ofLogNotice() << point.x << "teetetet" << originalPos.x;
     if (point.x >= originalPos.x
         && point.x <= originalPos.x + side
         && point.y >= originalPos.y
         && point.y <= originalPos.y + side) {
         rectPath.setFillColor(ofColor::green);
-        //ofLog() << gridPos << "XXXXXXXXXXXXXXXXXXXXXXXXXX" << endl;
+        return gridPos;
     } else {
         rectPath.setFillColor(ofColor::blue);
-        //ofLogNotice() << "JJJJJJJJJJJJ";
+        return -1;
     }
-    return gridPos;
 }

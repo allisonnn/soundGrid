@@ -150,23 +150,6 @@ void ofApp::draw()
     }
     
     ofDrawBitmapString(reportStream.str(), 20, 652);
-    
-    //analyze position
-    
-//    if (contourFinder.blobs.size() > 0) {
-//        kinectPoint = contourFinder.blobs[0].centroid;
-//        ofSetColor(255, 0, 0);
-//        ofDrawCircle(kinectPoint, 5.0);
-//        
-//        ofVec3f worldPoint = kinect.getWorldCoordinateAt(kinectPoint.x, kinectPoint.y);
-//        ofVec2f projectedPoint = kpt.getProjectedPoint(worldPoint);
-//        
-//        ofLogNotice() << kinectPoint;
-//        
-//        for (int i = 0; i < NGRIDS; i++) {
-//            int nowGrid = grid[i].isIn(ofVec2f (projectedPoint.x * 1024, projectedPoint.y * 768));
-//        }
-//    }
 }
 
 //--------------------------------------------------------------
@@ -190,40 +173,20 @@ void ofApp::drawSecondWindow (ofEventArgs & args)
         ofDrawCircle(PROJECTOR_RESOLUTION_X * projectedPoint.x, PROJECTOR_RESOLUTION_Y * projectedPoint.y, 50);
         
         ofVec2f point = ofVec2f (projectedPoint.x * PROJECTOR_RESOLUTION_X, projectedPoint.y * PROJECTOR_RESOLUTION_Y);
-//        for (int i = 0; i < NGRIDS; i++) {
-//            ofLogNotice() << point;
-//            if (point.x >= 128 + grid[i].originalPos.x
-//                && point.x <= 128 + grid[i].side
-//                && point.y >= 0
-//                && point.y <= 0 + grid[i].side) {
-//                grid[i].rectPath.setFillColor(ofColor::green);
-//                ofLogNotice() << "XXXXXXXXXXXXXXXXXXXXXXXXXX";
-//            } else {
-//                grid[i].rectPath.setFillColor(ofColor::blue);
-//                //ofLogNotice() << "JJJJJJJJJJJJ";
-//            }
-//        }
+        for (int i = 0; i < NGRIDS; i++) {
+            grids[i].getCurrentPosition(point);
+        }
     }
 
     
     // Uncomment this part to test responding grids
     int x = ofGetMouseX();
     int y = ofGetMouseY();
-    //ofLog() << x << "++++++" << y << endl;
+
     ofSetColor(0, 0, 230);
     cursor.circle(x, y, 5);
     for (int i = 0; i < NGRIDS; i++) {
-        grids[i].isIn(ofVec2f (x, y));
-//        if (x >= grid[i].originalPos.x
-//            && x <= grid[i].originalPos.x + grid[i].side
-//            && y >= grid[i].originalPos.y
-//            && y <= grid[i].originalPos.y + grid[i].side) {
-//            grid[i].rectPath.setFillColor(ofColor::green);
-//            ofLog() << i <<"XXXXXXXXXXXXXXXXXXXXXXXXXX" << endl;
-//        } else {
-//            grid[i].rectPath.setFillColor(ofColor::blue);
-//            //ofLogNotice() << "JJJJJJJJJJJJ";
-//        }
+        grids[i].getCurrentPosition(ofVec2f (x, y));
     }
 }
 
