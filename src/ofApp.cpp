@@ -24,8 +24,8 @@ void ofApp::setup()
     grayThreshNear.allocate(kinect.width, kinect.height);
     grayThreshFar.allocate(kinect.width, kinect.height);
     
-    nearThreshold = 117;
-    farThreshold = 84;
+    nearThreshold = 140.25;
+    farThreshold = 128.775;
     bThreshWithOpenCV = true;
     
     ofSetFrameRate(60);
@@ -77,6 +77,7 @@ void ofApp::update()
         
         contourFinder.setMinArea(1000);
         contourFinder.setMaxArea(70000);
+        contourFinder.setSortBySize(true);
         contourFinder.findContours(grayImage);
 
     }
@@ -179,15 +180,15 @@ void ofApp::drawSecondWindow (ofEventArgs & args)
     }
 
     
-    // Uncomment this part to test responding grids
-    int x = ofGetMouseX();
-    int y = ofGetMouseY();
-
-    ofSetColor(0, 0, 230);
-    cursor.circle(x, y, 5);
-    for (int i = 0; i < NGRIDS; i++) {
-        grids[i].getCurrentPosition(ofVec2f (x, y));
-    }
+//    //=======UNCOMMENT THIS PART TO TEST RESPONDING GRIDS========
+//    int x = ofGetMouseX();
+//    int y = ofGetMouseY();
+//
+//    ofSetColor(0, 0, 230);
+//    cursor.circle(x, y, 5);
+//    for (int i = 0; i < NGRIDS; i++) {
+//        grids[i].getCurrentPosition(ofVec2f (x, y));
+//    }
 }
 
 //--------------------------------------------------------------
