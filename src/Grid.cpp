@@ -51,7 +51,6 @@ void Grid::draw() {
 }
 
 int Grid::getCurrentPosition(ofVec2f point) {
-    ofLogNotice() << point.x << "teetetet" << originalPos.x;
     if (point.x >= originalPos.x
         && point.x <= originalPos.x + side
         && point.y >= originalPos.y
