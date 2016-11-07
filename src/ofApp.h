@@ -6,7 +6,7 @@
 #include "ofxKinect.h"
 #include "ofxKinectProjectorToolkit.h"
 #include "ofxOsc.h"
-#include "eachGrid.h"
+#include "Grid.h"
 
 #define PROJECTOR_RESOLUTION_X 1024
 #define PROJECTOR_RESOLUTION_Y 768
@@ -25,10 +25,13 @@ public:
     void draw();
     void drawSecondWindow(ofEventArgs& args);
     void exit();
+    void exitSecondWindow(ofEventArgs& args);
     
     void drawPointCloud();
     
     void keyPressed(int key);
+    void mouseMoved(ofEventArgs& args);
+    void mouseMovedSecondWindow(ofEventArgs& args);
     void mouseDragged(int x, int y, int button);
     void mousePressed(int x, int y, int button);
     void mouseReleased(int x, int y, int button);
@@ -68,5 +71,7 @@ public:
     ofxOscReceiver receiver;
     
     //grid
-    EachGrid grid[NGRIDS];
+    Grid grids[NGRIDS];
+    
+    ofPath cursor;
 };

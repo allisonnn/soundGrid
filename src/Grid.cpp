@@ -1,24 +1,28 @@
 //
-//  eachGrid.cpp
+//  Grid.cpp
 //  soundGrid
 //
 //  Created by Xiao Chen on 2016-11-02.
 //
 //
 
-#include "eachGrid.h"
+#include "Grid.h"
 
-EachGrid::EachGrid() {
+Grid::Grid() {
 }
 
-void EachGrid::setup(int _pos) {
+void Grid::setup(int _pos) {
     gridPos = _pos;
     mainMargin = (PROJECTOR_RESOLUTION_X - PROJECTOR_RESOLUTION_Y) / 2;
     generateGrids();
 }
 
-void EachGrid::generateGrids() {
-    float outerSide = 2 * margin + side;
+void Grid::generateGrids() {
+    int outerSide = 2 * margin + side;
+    
+    // Set the original position for calculations
+    originalPos.x = mainMargin + outerSide * (gridPos % 3) + margin;
+    originalPos.y = outerSide * (floor(gridPos / 3)) + margin;
 
     //----------CALCULATE THE PATH FOR OUTER RECTANGLE------------//
     rectPath.rectangle(mainMargin + outerSide * (gridPos % 3), outerSide * (floor(gridPos / 3)), outerSide, outerSide);
@@ -27,18 +31,18 @@ void EachGrid::generateGrids() {
     rectPath.setStrokeWidth(0);
     
     //----------CALCULATE THE PATH FOR INTERNAL RECTANGLE------------//
-    internalPath.rectangle(mainMargin + outerSide * (gridPos % 3) + margin, outerSide * (floor(gridPos / 3)) + margin, side, side);
+    internalPath.rectangle(originalPos.x, originalPos.y, side, side);
     internalPath.setFillColor(ofColor::red);
     internalPath.setFilled(true);
     internalPath.setStrokeWidth(0);
     
 }
 
-void EachGrid::update() {
-    //rectPath.setFillColor(ofColor::green);
+void Grid::update() {
+    
 }
 
-void EachGrid::draw() {
+void Grid::draw() {
     //----------DRAW THE OUTER RECTANGLE BY PATH------------//
     rectPath.draw();
     
@@ -46,17 +50,16 @@ void EachGrid::draw() {
     internalPath.draw();
 }
 
-int EachGrid::isIn(ofVec2f point) {
-    ofLogNotice() << point;
+int Grid::getCurrentPosition(ofVec2f point) {
+    ofLogNotice() << point.x << "teetetet" << originalPos.x;
     if (point.x >= originalPos.x
         && point.x <= originalPos.x + side
         && point.y >= originalPos.y
         && point.y <= originalPos.y + side) {
         rectPath.setFillColor(ofColor::green);
-        //ofLogNotice() << "XXXXXXXXXXXXXXXXXXXXXXXXXX";
+        return gridPos;
     } else {
         rectPath.setFillColor(ofColor::blue);
-        //ofLogNotice() << "JJJJJJJJJJJJ";
+        return -1;
     }
-    return gridPos;
 }
