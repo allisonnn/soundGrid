@@ -62,9 +62,10 @@ public:
     ofPoint projectorPoint;
     
     //sounds
-    ofSoundPlayer planet0;
-    ofSoundPlayer planet1;
-    ofSoundPlayer planet2;
+    //ofSoundPlayer planet0;
+    //ofSoundPlayer planet1;
+    //ofSoundPlayer planet2;
+    vector<ofSoundPlayer> planet0;
     
     //osc
     ofxOscSender sender;

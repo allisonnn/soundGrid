@@ -15,13 +15,21 @@ int main( ){
 
     settings.width = PROJECTOR_RESOLUTION_X;
     settings.height = PROJECTOR_RESOLUTION_Y;
-    settings.setPosition(ofVec2f(ofGetScreenWidth(), 0));
-    //settings.setPosition(ofVec2f(200, 0));
-    settings.resizable = false;
+    //settings.setPosition(ofVec2f(ofGetScreenWidth(), 0));
+    settings.setPosition(ofVec2f(200, 0));
+    //settings.resizable = false;
     settings.decorated = false;
     settings.shareContextWith = mainWindow;
     shared_ptr<ofAppBaseWindow> secondWindow = ofCreateWindow(settings);
     secondWindow->setVerticalSync(false);
+    
+    settings.width = PROJECTOR_RESOLUTION_X;
+    settings.height = PROJECTOR_RESOLUTION_Y;
+    settings.setPosition(ofVec2f(400, 0));
+    settings.shareContextWith = mainWindow;
+    shared_ptr<ofAppBaseWindow> frontWindow = ofCreateWindow(settings);
+    frontWindow->setVerticalSync(false);
+    
     
     shared_ptr<ofApp> mainApp(new ofApp);
     ofAddListener(secondWindow->events().draw, mainApp.get(), &ofApp::drawSecondWindow);

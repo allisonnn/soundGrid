@@ -37,9 +37,9 @@ void ofApp::setup()
     kpt.loadCalibration("calibration_data/calibration.xml");
     
     //sounds
-    planet0.load("sounds/1085.mp3");
-    planet1.load("sounds/1085.mp3");
-    planet2.load("sounds/Violet.mp3");
+//    planet0.load("sounds/1085.mp3");
+//    planet1.load("sounds/1085.mp3");
+//    planet2.load("sounds/Violet.mp3");
     
     //osc
     sender.setup(IP_ADDRESS, PORT);
