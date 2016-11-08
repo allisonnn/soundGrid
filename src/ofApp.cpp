@@ -41,6 +41,10 @@ void ofApp::setup()
 //    planet1.load("sounds/1085.mp3");
 //    planet2.load("sounds/Violet.mp3");
     
+    for (int i = 0; i < planet0.size(); i++) {
+        planet0[i].load("sounds/" + to_string(i) + ".mp3");
+    }
+    
     //osc
     sender.setup(IP_ADDRESS, PORT);
     receiver.setup(12000);
@@ -180,15 +184,15 @@ void ofApp::drawSecondWindow (ofEventArgs & args)
     }
 
     
-//    //=======UNCOMMENT THIS PART TO TEST RESPONDING GRIDS========
-//    int x = ofGetMouseX();
-//    int y = ofGetMouseY();
-//
-//    ofSetColor(0, 0, 230);
-//    cursor.circle(x, y, 5);
-//    for (int i = 0; i < NGRIDS; i++) {
-//        grids[i].getCurrentPosition(ofVec2f (x, y));
-//    }
+    //=======UNCOMMENT THIS PART TO TEST RESPONDING GRIDS========
+    int x = ofGetMouseX();
+    int y = ofGetMouseY();
+
+    ofSetColor(0, 0, 230);
+    cursor.circle(x, y, 5);
+    for (int i = 0; i < NGRIDS; i++) {
+        grids[i].getCurrentPosition(ofVec2f (x, y));
+    }
 }
 
 //--------------------------------------------------------------
@@ -290,12 +294,12 @@ void ofApp::keyPressed (int key)
 }
 
 //--------------------------------------------------------------
-void ofApp::mouseMoved(ofEventArgs& args)
+void ofApp::mouseMoved(int x, int y)
 {
     
 }
 
-void ofApp::mouseMovedSecondWindow (ofEventArgs& args)
+void ofApp::mouseMovedSecondWindow (ofMouseEventArgs& args)
 {
 
 }

@@ -13,6 +13,7 @@
 #define PORT 8001
 #define IP_ADDRESS "127.0.0.1"
 #define NGRIDS 9
+#define NTRACKS 5
 
 using namespace ofxCv;
 using namespace cv;
@@ -30,8 +31,8 @@ public:
     void drawPointCloud();
     
     void keyPressed(int key);
-    void mouseMoved(ofEventArgs& args);
-    void mouseMovedSecondWindow(ofEventArgs& args);
+    void mouseMoved(int x, int y);
+    void mouseMovedSecondWindow(ofMouseEventArgs& args);
     void mouseDragged(int x, int y, int button);
     void mousePressed(int x, int y, int button);
     void mouseReleased(int x, int y, int button);
@@ -65,6 +66,7 @@ public:
     //ofSoundPlayer planet0;
     //ofSoundPlayer planet1;
     //ofSoundPlayer planet2;
+    //vector< vector <ofSoundPlayer> > sounds(8, vector<ofSoundPlayer>(5));
     vector<ofSoundPlayer> planet0;
     
     //osc
