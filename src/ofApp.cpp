@@ -41,9 +41,9 @@ void ofApp::setup()
 //    planet1.load("sounds/1085.mp3");
 //    planet2.load("sounds/Violet.mp3");
     
-    for (int i = 0; i < planet0.size(); i++) {
-        planet0[i].load("sounds/" + to_string(i) + ".mp3");
-    }
+//    for (int i = 0; i < planet0.size(); i++) {
+//        planet0[i].load("sounds/" + to_string(i) + ".mp3");
+//    }
     
     //osc
     sender.setup(IP_ADDRESS, PORT);

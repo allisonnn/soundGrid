@@ -13,6 +13,7 @@
 
 #define PROJECTOR_RESOLUTION_X 1024
 #define PROJECTOR_RESOLUTION_Y 768
+#define DELAY_TIME 6
 
 class Grid {
     
@@ -46,6 +47,8 @@ public:
     ofVec2f originalPos;
     
     float mainMargin;
+    
+    ofTimer timer;
 };
 
 #endif /* Grid_h */
