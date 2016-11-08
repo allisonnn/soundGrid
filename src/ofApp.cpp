@@ -158,7 +158,7 @@ void ofApp::draw()
 }
 
 //--------------------------------------------------------------
-void ofApp::drawSecondWindow (ofEventArgs & args)
+void ofApp::drawGroundWindow (ofEventArgs & args)
 {
     ofSetBackgroundColor(0, 0, 0);
     for(int i=0; i<NGRIDS; i++){
@@ -203,7 +203,7 @@ void ofApp::exit()
 }
 
 //--------------------------------------------------------------
-void ofApp::exitSecondWindow(ofEventArgs &args)
+void ofApp::exitGroundWindow(ofEventArgs &args)
 {
     
 }
@@ -299,7 +299,7 @@ void ofApp::mouseMoved(int x, int y)
     
 }
 
-void ofApp::mouseMovedSecondWindow (ofMouseEventArgs& args)
+void ofApp::mouseMovedGroundWindow (ofMouseEventArgs& args)
 {
 
 }

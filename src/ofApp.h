@@ -24,15 +24,15 @@ public:
     void setup();
     void update();
     void draw();
-    void drawSecondWindow(ofEventArgs& args);
+    void drawGroundWindow(ofEventArgs& args);
     void exit();
-    void exitSecondWindow(ofEventArgs& args);
+    void exitGroundWindow(ofEventArgs& args);
     
     void drawPointCloud();
     
     void keyPressed(int key);
     void mouseMoved(int x, int y);
-    void mouseMovedSecondWindow(ofMouseEventArgs& args);
+    void mouseMovedGroundWindow(ofMouseEventArgs& args);
     void mouseDragged(int x, int y, int button);
     void mousePressed(int x, int y, int button);
     void mouseReleased(int x, int y, int button);

@@ -20,8 +20,8 @@ int main( ){
     //settings.resizable = false;
     settings.decorated = false;
     settings.shareContextWith = mainWindow;
-    shared_ptr<ofAppBaseWindow> secondWindow = ofCreateWindow(settings);
-    secondWindow->setVerticalSync(false);
+    shared_ptr<ofAppBaseWindow> groundWindow = ofCreateWindow(settings);
+    groundWindow->setVerticalSync(false);
     
     settings.width = PROJECTOR_RESOLUTION_X;
     settings.height = PROJECTOR_RESOLUTION_Y;
@@ -32,10 +32,10 @@ int main( ){
     
     
     shared_ptr<ofApp> mainApp(new ofApp);
-    ofAddListener(secondWindow->events().draw, mainApp.get(), &ofApp::drawSecondWindow);
-    ofAddListener(secondWindow->events().exit, mainApp.get(), &ofApp::exitSecondWindow);
-    ofAddListener(secondWindow->events().mouseMoved, mainApp.get(),
-                  &ofApp::mouseMovedSecondWindow);
+    ofAddListener(groundWindow->events().draw, mainApp.get(), &ofApp::drawGroundWindow);
+    ofAddListener(groundWindow->events().exit, mainApp.get(), &ofApp::exitGroundWindow);
+    ofAddListener(groundWindow->events().mouseMoved, mainApp.get(),
+                  &ofApp::mouseMovedGroundWindow);
     
     ofRunApp(mainWindow, mainApp);
     ofRunMainLoop();
