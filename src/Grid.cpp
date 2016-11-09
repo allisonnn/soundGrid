@@ -8,16 +8,19 @@
 
 #include "Grid.h"
 
-Grid::Grid() {
+Grid::Grid()
+{
 }
 
-void Grid::setup(int _pos) {
+void Grid::setup(int _pos)
+{
     gridPos = _pos;
     mainMargin = (PROJECTOR_RESOLUTION_X - PROJECTOR_RESOLUTION_Y) / 2;
     generateGrids();
 }
 
-void Grid::generateGrids() {
+void Grid::generateGrids()
+{
     int outerSide = 2 * margin + side;
     
     // Set the original position for calculations
@@ -32,17 +35,19 @@ void Grid::generateGrids() {
     
     //----------CALCULATE THE PATH FOR INTERNAL RECTANGLE------------//
     internalPath.rectangle(originalPos.x, originalPos.y, side, side);
-    internalPath.setFillColor(ofColor::red);
+    internalPath.setFillColor(ofColor::black);
     internalPath.setFilled(true);
     internalPath.setStrokeWidth(0);
     
 }
 
-void Grid::update() {
+void Grid::update()
+{
     
 }
 
-void Grid::draw() {
+void Grid::draw()
+{
     //----------DRAW THE OUTER RECTANGLE BY PATH------------//
     rectPath.draw();
     
@@ -50,15 +55,27 @@ void Grid::draw() {
     internalPath.draw();
 }
 
-int Grid::getCurrentPosition(ofVec2f point) {
+int Grid::getCurrentPosition(ofVec2f point)
+{
     if (point.x >= originalPos.x
         && point.x <= originalPos.x + side
         && point.y >= originalPos.y
         && point.y <= originalPos.y + side) {
-        rectPath.setFillColor(ofColor::green);
         return gridPos;
+    } else if (point.x < mainMargin || point.x > mainMargin + PROJECTOR_RESOLUTION_Y) {
+        return -2;
     } else {
-        rectPath.setFillColor(ofColor::blue);
+        reset();
         return -1;
     }
+}
+
+void Grid::light()
+{
+    rectPath.setFillColor(ofColor::green);
+}
+
+void Grid::reset()
+{
+    rectPath.setFillColor(ofColor::blue);
 }

@@ -13,6 +13,8 @@
 #define PORT 8001
 #define IP_ADDRESS "127.0.0.1"
 #define NGRIDS 9
+#define NTRACKS 5
+#define TIME_DELAY 1
 
 using namespace ofxCv;
 using namespace cv;
@@ -23,20 +25,15 @@ public:
     void setup();
     void update();
     void draw();
-    void drawSecondWindow(ofEventArgs& args);
+    void drawGroundWindow(ofEventArgs& args);
     void exit();
-    void exitSecondWindow(ofEventArgs& args);
+    void exitGroundWindow(ofEventArgs& args);
     
     void drawPointCloud();
     
     void keyPressed(int key);
-    void mouseMoved(ofEventArgs& args);
-    void mouseMovedSecondWindow(ofEventArgs& args);
-    void mouseDragged(int x, int y, int button);
-    void mousePressed(int x, int y, int button);
-    void mouseReleased(int x, int y, int button);
-    void mouseEntered(int x, int y);
-    void mouseExited(int x, int y);
+    void mouseMoved(int x, int y);
+    void mouseMovedGroundWindow(ofMouseEventArgs& args);
     void windowResized(int w, int h);
     
     void sendMessage(string m);
@@ -65,7 +62,8 @@ public:
     //ofSoundPlayer planet0;
     //ofSoundPlayer planet1;
     //ofSoundPlayer planet2;
-    vector<ofSoundPlayer> planet0;
+    //vector< vector <ofSoundPlayer> > sounds(8, vector <ofSoundPlayer> (5));
+    //vector<ofSoundPlayer> planet0;
     
     //osc
     ofxOscSender sender;
@@ -75,4 +73,9 @@ public:
     Grid grids[NGRIDS];
     
     ofPath cursor;
+    int currentPosition;
+    int originalPosition;
+    float startTime;
+    
+    void checkPoint(ofVec2f point);
 };

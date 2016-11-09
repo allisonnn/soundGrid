@@ -41,6 +41,10 @@ void ofApp::setup()
 //    planet1.load("sounds/1085.mp3");
 //    planet2.load("sounds/Violet.mp3");
     
+//    for (int i = 0; i < planet0.size(); i++) {
+//        planet0[i].load("sounds/" + to_string(i) + ".mp3");
+//    }
+    
     //osc
     sender.setup(IP_ADDRESS, PORT);
     receiver.setup(12000);
@@ -111,7 +115,6 @@ void ofApp::sendMessage(string m) {
 //--------------------------------------------------------------
 void ofApp::draw()
 {
-    
     ofSetColor(255, 255, 255);
     
 
@@ -154,7 +157,7 @@ void ofApp::draw()
 }
 
 //--------------------------------------------------------------
-void ofApp::drawSecondWindow (ofEventArgs & args)
+void ofApp::drawGroundWindow (ofEventArgs & args)
 {
     ofSetBackgroundColor(0, 0, 0);
     for(int i=0; i<NGRIDS; i++){
@@ -174,21 +177,18 @@ void ofApp::drawSecondWindow (ofEventArgs & args)
         ofDrawCircle(PROJECTOR_RESOLUTION_X * projectedPoint.x, PROJECTOR_RESOLUTION_Y * projectedPoint.y, 50);
         
         ofVec2f point = ofVec2f (projectedPoint.x * PROJECTOR_RESOLUTION_X, projectedPoint.y * PROJECTOR_RESOLUTION_Y);
-        for (int i = 0; i < NGRIDS; i++) {
-            grids[i].getCurrentPosition(point);
-        }
+        checkPoint(point);
     }
 
     
-//    //=======UNCOMMENT THIS PART TO TEST RESPONDING GRIDS========
-//    int x = ofGetMouseX();
-//    int y = ofGetMouseY();
-//
-//    ofSetColor(0, 0, 230);
-//    cursor.circle(x, y, 5);
-//    for (int i = 0; i < NGRIDS; i++) {
-//        grids[i].getCurrentPosition(ofVec2f (x, y));
-//    }
+    //=======UNCOMMENT THIS PART TO TEST RESPONDING GRIDS========
+    int x = ofGetMouseX();
+    int y = ofGetMouseY();
+
+    ofSetColor(0, 0, 230);
+    cursor.circle(x, y, 5);
+    
+    checkPoint(ofVec2f (x, y));
 }
 
 //--------------------------------------------------------------
@@ -199,7 +199,7 @@ void ofApp::exit()
 }
 
 //--------------------------------------------------------------
-void ofApp::exitSecondWindow(ofEventArgs &args)
+void ofApp::exitGroundWindow(ofEventArgs &args)
 {
     
 }
@@ -290,46 +290,58 @@ void ofApp::keyPressed (int key)
 }
 
 //--------------------------------------------------------------
-void ofApp::mouseMoved(ofEventArgs& args)
+void ofApp::mouseMoved(int x, int y)
 {
     
 }
 
-void ofApp::mouseMovedSecondWindow (ofEventArgs& args)
+void ofApp::mouseMovedGroundWindow (ofMouseEventArgs& args)
 {
 
-}
-
-//--------------------------------------------------------------
-void ofApp::mouseDragged(int x, int y, int button)
-{
-    
-}
-
-//--------------------------------------------------------------
-void ofApp::mousePressed(int x, int y, int button)
-{
-    
-}
-
-//--------------------------------------------------------------
-void ofApp::mouseReleased(int x, int y, int button)
-{
-    
-}
-
-//--------------------------------------------------------------
-void ofApp::mouseEntered(int x, int y){
-    
-}
-
-//--------------------------------------------------------------
-void ofApp::mouseExited(int x, int y){
-    
 }
 
 //--------------------------------------------------------------
 void ofApp::windowResized(int w, int h)
 {
     
+}
+
+//--------------------------------------------------------------
+void ofApp::checkPoint(ofVec2f point)
+{
+    int cp;
+    float dt;
+    
+    for (int i = 0; i < NGRIDS; i++) {
+        cp = grids[i].getCurrentPosition(point);
+        
+        if (cp >= 0) {
+            currentPosition = cp;
+        }
+    }
+    
+    // Leave grids reset timer
+    if (cp == -2) {
+        
+        for (int i = 0; i < NGRIDS; i++) {
+            grids[i].reset();
+        }
+        originalPosition = -2;
+        
+        // New timer
+    } else if(originalPosition != currentPosition) {
+        
+        startTime = ofGetElapsedTimef();
+        originalPosition = currentPosition;
+        
+        // Still there
+    } else {
+        
+        dt = ofGetElapsedTimef() - startTime;
+        
+        if((dt) >= TIME_DELAY) {
+            grids[currentPosition].light();
+        }
+        
+    }
 }
