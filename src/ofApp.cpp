@@ -44,9 +44,9 @@ void ofApp::setup()
 //    for (int i = 0; i < planet0.size(); i++) {
 //        planet0[i].load("sounds/" + to_string(i) + ".mp3");
 //    }
-    for (int i = 0; i < 8; i++) {
+    for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 5; j++) {
-            sounds[i][j].load("sounds/" + to_string(i) + "/" + to_string(j) + ".mp3");
+            sounds[i][j].load("sounds/" + to_string(i) + "_" + to_string(j) + ".mp3");
         }
     }
     
