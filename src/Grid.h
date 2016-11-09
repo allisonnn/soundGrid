@@ -13,7 +13,6 @@
 
 #define PROJECTOR_RESOLUTION_X 1024
 #define PROJECTOR_RESOLUTION_Y 768
-#define DELAY_TIME 6
 
 class Grid {
     
@@ -24,6 +23,8 @@ public:
     void update();  // update method, used to refresh your objects properties
     void draw();    // draw method, this where you'll do the object's drawing
     int getCurrentPosition(ofVec2f point);
+    void light();
+    void reset();
     
     // variables
     float x;        // position
@@ -47,8 +48,6 @@ public:
     ofVec2f originalPos;
     
     float mainMargin;
-    
-    ofTimer timer;
 };
 
 #endif /* Grid_h */

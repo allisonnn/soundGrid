@@ -115,7 +115,6 @@ void ofApp::sendMessage(string m) {
 //--------------------------------------------------------------
 void ofApp::draw()
 {
-    
     ofSetColor(255, 255, 255);
     
 
@@ -187,11 +186,40 @@ void ofApp::drawGroundWindow (ofEventArgs & args)
     //=======UNCOMMENT THIS PART TO TEST RESPONDING GRIDS========
     int x = ofGetMouseX();
     int y = ofGetMouseY();
+    int cp;
+    float dt;
 
     ofSetColor(0, 0, 230);
     cursor.circle(x, y, 5);
     for (int i = 0; i < NGRIDS; i++) {
-        grids[i].getCurrentPosition(ofVec2f (x, y));
+        cp = grids[i].getCurrentPosition(ofVec2f (x, y));
+        
+        if (cp >= 0) {
+            currentPosition = cp;
+        }
+    }
+
+    // Reset timer
+    if (cp == -2) {
+
+        for (int i = 0; i < NGRIDS; i++) {
+            grids[i].reset();
+        }
+        originalPosition = -2;
+        
+    } else if(originalPosition != currentPosition) {
+        
+        startTime = ofGetElapsedTimef();
+        originalPosition = currentPosition;
+        
+    } else {
+        
+        dt = ofGetElapsedTimef() - startTime;
+
+        if((dt) >= TIME_DELAY) {
+            grids[currentPosition].light();
+        }
+        
     }
 }
 

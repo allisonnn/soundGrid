@@ -14,6 +14,7 @@
 #define IP_ADDRESS "127.0.0.1"
 #define NGRIDS 9
 #define NTRACKS 5
+#define TIME_DELAY 1
 
 using namespace ofxCv;
 using namespace cv;
@@ -77,4 +78,7 @@ public:
     Grid grids[NGRIDS];
     
     ofPath cursor;
+    int currentPosition;
+    int originalPosition;
+    float startTime;
 };
