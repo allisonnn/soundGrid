@@ -34,11 +34,6 @@ public:
     void keyPressed(int key);
     void mouseMoved(int x, int y);
     void mouseMovedGroundWindow(ofMouseEventArgs& args);
-    void mouseDragged(int x, int y, int button);
-    void mousePressed(int x, int y, int button);
-    void mouseReleased(int x, int y, int button);
-    void mouseEntered(int x, int y);
-    void mouseExited(int x, int y);
     void windowResized(int w, int h);
     
     void sendMessage(string m);
@@ -81,4 +76,6 @@ public:
     int currentPosition;
     int originalPosition;
     float startTime;
+    
+    void checkPoint(ofVec2f point);
 };

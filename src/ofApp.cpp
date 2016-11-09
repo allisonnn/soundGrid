@@ -177,50 +177,18 @@ void ofApp::drawGroundWindow (ofEventArgs & args)
         ofDrawCircle(PROJECTOR_RESOLUTION_X * projectedPoint.x, PROJECTOR_RESOLUTION_Y * projectedPoint.y, 50);
         
         ofVec2f point = ofVec2f (projectedPoint.x * PROJECTOR_RESOLUTION_X, projectedPoint.y * PROJECTOR_RESOLUTION_Y);
-        for (int i = 0; i < NGRIDS; i++) {
-            grids[i].getCurrentPosition(point);
-        }
+        checkPoint(point);
     }
 
     
     //=======UNCOMMENT THIS PART TO TEST RESPONDING GRIDS========
     int x = ofGetMouseX();
     int y = ofGetMouseY();
-    int cp;
-    float dt;
 
     ofSetColor(0, 0, 230);
     cursor.circle(x, y, 5);
-    for (int i = 0; i < NGRIDS; i++) {
-        cp = grids[i].getCurrentPosition(ofVec2f (x, y));
-        
-        if (cp >= 0) {
-            currentPosition = cp;
-        }
-    }
-
-    // Reset timer
-    if (cp == -2) {
-
-        for (int i = 0; i < NGRIDS; i++) {
-            grids[i].reset();
-        }
-        originalPosition = -2;
-        
-    } else if(originalPosition != currentPosition) {
-        
-        startTime = ofGetElapsedTimef();
-        originalPosition = currentPosition;
-        
-    } else {
-        
-        dt = ofGetElapsedTimef() - startTime;
-
-        if((dt) >= TIME_DELAY) {
-            grids[currentPosition].light();
-        }
-        
-    }
+    
+    checkPoint(ofVec2f (x, y));
 }
 
 //--------------------------------------------------------------
@@ -333,35 +301,47 @@ void ofApp::mouseMovedGroundWindow (ofMouseEventArgs& args)
 }
 
 //--------------------------------------------------------------
-void ofApp::mouseDragged(int x, int y, int button)
-{
-    
-}
-
-//--------------------------------------------------------------
-void ofApp::mousePressed(int x, int y, int button)
-{
-    
-}
-
-//--------------------------------------------------------------
-void ofApp::mouseReleased(int x, int y, int button)
-{
-    
-}
-
-//--------------------------------------------------------------
-void ofApp::mouseEntered(int x, int y){
-    
-}
-
-//--------------------------------------------------------------
-void ofApp::mouseExited(int x, int y){
-    
-}
-
-//--------------------------------------------------------------
 void ofApp::windowResized(int w, int h)
 {
     
+}
+
+//--------------------------------------------------------------
+void ofApp::checkPoint(ofVec2f point)
+{
+    int cp;
+    float dt;
+    
+    for (int i = 0; i < NGRIDS; i++) {
+        cp = grids[i].getCurrentPosition(point);
+        
+        if (cp >= 0) {
+            currentPosition = cp;
+        }
+    }
+    
+    // Leave grids reset timer
+    if (cp == -2) {
+        
+        for (int i = 0; i < NGRIDS; i++) {
+            grids[i].reset();
+        }
+        originalPosition = -2;
+        
+        // New timer
+    } else if(originalPosition != currentPosition) {
+        
+        startTime = ofGetElapsedTimef();
+        originalPosition = currentPosition;
+        
+        // Still there
+    } else {
+        
+        dt = ofGetElapsedTimef() - startTime;
+        
+        if((dt) >= TIME_DELAY) {
+            grids[currentPosition].light();
+        }
+        
+    }
 }
