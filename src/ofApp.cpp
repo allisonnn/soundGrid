@@ -44,9 +44,10 @@ void ofApp::setup()
 //    for (int i = 0; i < planet0.size(); i++) {
 //        planet0[i].load("sounds/" + to_string(i) + ".mp3");
 //    }
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 4; i++) {
         for (int j = 0; j < 5; j++) {
             sounds[i][j].load("sounds/" + to_string(i) + "_" + to_string(j) + ".mp3");
+            sounds[i][j].setLoop(true);
         }
     }
     
@@ -331,22 +332,42 @@ void ofApp::checkPoint(ofVec2f point)
         for (int i = 0; i < NGRIDS; i++) {
             grids[i].reset();
         }
+        stopSound();
         originalPosition = -2;
         
         // New timer
-    } else if(originalPosition != currentPosition) {
-        
+    } else if (originalPosition != currentPosition) {
+        stopSound();
         startTime = ofGetElapsedTimef();
         originalPosition = currentPosition;
         
         // Still there
-    } else {
-        
+    } else if (originalPosition == currentPosition) {
+        ofLog() << originalPosition << endl;
         dt = ofGetElapsedTimef() - startTime;
         
         if((dt) >= TIME_DELAY) {
+            playSound();
             grids[currentPosition].light();
         }
         
+    }
+}
+
+void ofApp::playSound()
+{
+    if (!sounds[currentPosition][0].isPlaying()) {
+        sounds[currentPosition][0].play();
+    }
+}
+
+void ofApp::stopSound()
+{
+    for (int i = 0; i < 4; i ++) {
+        for (int j = 0; j < 5; j++) {
+            if (sounds[i][j].isPlaying()) {
+                sounds[i][j].stop();
+            }
+        }
     }
 }

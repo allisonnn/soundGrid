@@ -62,7 +62,7 @@ public:
     //ofSoundPlayer planet0;
     //ofSoundPlayer planet1;
     //ofSoundPlayer planet2;
-    ofSoundPlayer sounds [3][5];
+    ofSoundPlayer sounds [4][5];
     //vector<ofSoundPlayer> planet0;
     
     //osc
@@ -78,4 +78,6 @@ public:
     float startTime;
     
     void checkPoint(ofVec2f point);
+    void playSound();
+    void stopSound();
 };
