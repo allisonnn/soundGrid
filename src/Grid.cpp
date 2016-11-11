@@ -15,7 +15,7 @@ Grid::Grid()
 void Grid::setup(int _pos)
 {
     gridPos = _pos;
-    mainMargin = (PROJECTOR_RESOLUTION_X - PROJECTOR_RESOLUTION_Y) / 2;
+    mainMargin = (GROUND_PROJECTOR_RESOLUTION_X - GROUND_PROJECTOR_RESOLUTION_Y) / 2;
     generateGrids();
 }
 
@@ -48,11 +48,18 @@ void Grid::update()
 
 void Grid::draw()
 {
-    //----------DRAW THE OUTER RECTANGLE BY PATH------------//
-    rectPath.draw();
-    
-    //----------DRAW THE INTERNAL RECTANGLE------------//
-    internalPath.draw();
+    if (mode == "init") {
+        if (gridPos == 4) {
+            ofSetColor(255, 0, 0);
+            ofDrawRectangle(mainMargin + (2 * margin + side), 2 * margin + side, 2 * margin + side, 2 * margin + side);
+        }
+    } else {
+        //----------DRAW THE OUTER RECTANGLE BY PATH------------//
+        rectPath.draw();
+        
+        //----------DRAW THE INTERNAL RECTANGLE------------//
+        internalPath.draw();
+    }
 }
 
 int Grid::getCurrentPosition(ofVec2f point)
@@ -62,7 +69,7 @@ int Grid::getCurrentPosition(ofVec2f point)
         && point.y >= originalPos.y
         && point.y <= originalPos.y + side) {
         return gridPos;
-    } else if (point.x < mainMargin || point.x > mainMargin + PROJECTOR_RESOLUTION_Y) {
+    } else if (point.x < mainMargin || point.x > mainMargin + GROUND_PROJECTOR_RESOLUTION_Y) {
         return -2;
     } else {
         reset();

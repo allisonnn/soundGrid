@@ -11,8 +11,8 @@
 
 #include "ofMain.h"
 
-#define PROJECTOR_RESOLUTION_X 1024
-#define PROJECTOR_RESOLUTION_Y 768
+#define GROUND_PROJECTOR_RESOLUTION_X 1024
+#define GROUND_PROJECTOR_RESOLUTION_Y 768
 
 class Grid {
     
@@ -48,6 +48,7 @@ public:
     ofVec2f originalPos;
     
     float mainMargin;
+    string mode;
 };
 
 #endif /* Grid_h */

@@ -8,8 +8,10 @@
 #include "ofxOsc.h"
 #include "Grid.h"
 
-#define PROJECTOR_RESOLUTION_X 1024
-#define PROJECTOR_RESOLUTION_Y 768
+#define GROUND_PROJECTOR_RESOLUTION_X 1024
+#define GROUND_PROJECTOR_RESOLUTION_Y 768
+#define FRONT_PROJECTOR_RESOLUTION_X 1024
+#define FRONT_PROJECTOR_RESOLUTION_Y 768
 #define PORT 8001
 #define IP_ADDRESS "127.0.0.1"
 #define NGRIDS 9
@@ -62,7 +64,7 @@ public:
     //ofSoundPlayer planet0;
     //ofSoundPlayer planet1;
     //ofSoundPlayer planet2;
-    //vector< vector <ofSoundPlayer> > sounds(8, vector <ofSoundPlayer> (5));
+    ofSoundPlayer sounds [5][5];
     //vector<ofSoundPlayer> planet0;
     
     //osc
@@ -75,7 +77,18 @@ public:
     ofPath cursor;
     int currentPosition;
     int originalPosition;
-    float startTime;
     
     void checkPoint(ofVec2f point);
+    void playSound();
+    void stopSound();
+    
+    string state;
+    
+    ofTrueTypeFont font;
+    
+    ofImage start;
+    
+    void drawDot();
+    
+    float startTime;
 };
