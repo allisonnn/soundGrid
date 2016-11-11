@@ -28,6 +28,7 @@ public:
     void update();
     void draw();
     void drawGroundWindow(ofEventArgs& args);
+    void drawFrontWindow(ofEventArgs& args);
     void exit();
     void exitGroundWindow(ofEventArgs& args);
     

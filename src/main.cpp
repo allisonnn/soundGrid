@@ -36,6 +36,7 @@ int main( ){
     ofAddListener(groundWindow->events().exit, mainApp.get(), &ofApp::exitGroundWindow);
     ofAddListener(groundWindow->events().mouseMoved, mainApp.get(),
                   &ofApp::mouseMovedGroundWindow);
+    ofAddListener(frontWindow->events().draw, mainApp.get(), &ofApp::drawFrontWindow);
     
     ofRunApp(mainWindow, mainApp);
     ofRunMainLoop();
