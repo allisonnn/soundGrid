@@ -65,7 +65,7 @@ public:
     //ofSoundPlayer planet0;
     //ofSoundPlayer planet1;
     //ofSoundPlayer planet2;
-    ofSoundPlayer sounds [5][5];
+    ofSoundPlayer sounds [9][6];
     //vector<ofSoundPlayer> planet0;
     
     //osc
