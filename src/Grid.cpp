@@ -48,11 +48,18 @@ void Grid::update()
 
 void Grid::draw()
 {
-    //----------DRAW THE OUTER RECTANGLE BY PATH------------//
-    rectPath.draw();
-    
-    //----------DRAW THE INTERNAL RECTANGLE------------//
-    internalPath.draw();
+    if (mode == "init") {
+        if (gridPos == 4) {
+            ofSetColor(255, 0, 0);
+            ofDrawRectangle(mainMargin + (2 * margin + side), 2 * margin + side, 2 * margin + side, 2 * margin + side);
+        }
+    } else {
+        //----------DRAW THE OUTER RECTANGLE BY PATH------------//
+        rectPath.draw();
+        
+        //----------DRAW THE INTERNAL RECTANGLE------------//
+        internalPath.draw();
+    }
 }
 
 int Grid::getCurrentPosition(ofVec2f point)

@@ -13,18 +13,18 @@ int main( ){
     settings.resizable = true;
     shared_ptr<ofAppBaseWindow> mainWindow = ofCreateWindow(settings);
 
-    settings.width = PROJECTOR_RESOLUTION_X;
-    settings.height = PROJECTOR_RESOLUTION_Y;
-    //settings.setPosition(ofVec2f(ofGetScreenWidth(), 0));
+    settings.width = GROUND_PROJECTOR_RESOLUTION_X;
+    settings.height = GROUND_PROJECTOR_RESOLUTION_Y;
+    settings.setPosition(ofVec2f(ofGetScreenWidth(), 0));
     settings.setPosition(ofVec2f(200, 0));
     //settings.resizable = false;
-    settings.decorated = false;
+    //settings.decorated = false;
     settings.shareContextWith = mainWindow;
     shared_ptr<ofAppBaseWindow> groundWindow = ofCreateWindow(settings);
     groundWindow->setVerticalSync(false);
     
-    settings.width = PROJECTOR_RESOLUTION_X;
-    settings.height = PROJECTOR_RESOLUTION_Y;
+    settings.width = FRONT_PROJECTOR_RESOLUTION_X;
+    settings.height = FRONT_PROJECTOR_RESOLUTION_Y;
     settings.setPosition(ofVec2f(400, 0));
     settings.shareContextWith = mainWindow;
     shared_ptr<ofAppBaseWindow> frontWindow = ofCreateWindow(settings);

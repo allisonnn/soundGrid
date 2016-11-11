@@ -48,6 +48,7 @@ public:
     ofVec2f originalPos;
     
     float mainMargin;
+    string mode;
 };
 
 #endif /* Grid_h */
