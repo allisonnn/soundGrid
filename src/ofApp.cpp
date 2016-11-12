@@ -52,15 +52,8 @@ void ofApp::setup()
     kpt.loadCalibration("calibration_data/calibration.xml");
 
     //sounds
-//    planet0.load("sounds/1085.mp3");
-//    planet1.load("sounds/1085.mp3");
-//    planet2.load("sounds/Violet.mp3");
-
-//    for (int i = 0; i < planet0.size(); i++) {
-//        planet0[i].load("sounds/" + to_string(i) + ".mp3");
-//    }
-    for (int i = 0; i < 9; i++) {
-        for (int j = 0; j < 6; j++) {
+    for (int i = 0; i < NPLANETS; i++) {
+        for (int j = 0; j < NTRACKS; j++) {
             sounds[i][j].load("sounds/" + to_string(i) + "_" + to_string(j) + ".mp3");
             sounds[i][j].setLoop(true);
         }
@@ -269,7 +262,7 @@ void ofApp::drawGroundWindow (ofEventArgs & args)
 
 
     //=======UNCOMMENT THIS PART TO TEST RESPONDING GRIDS========
-    drawDot();
+    //drawDot();
 
 }
 
@@ -286,7 +279,7 @@ void ofApp::drawDot()
 
 void ofApp::drawFrontWindow(ofEventArgs& args)
 {
-    for (int i = 0; i < 9; i++) {
+    for (int i = 0; i < NPLANETS; i++) {
         if (sounds[i][0].isPlaying()) {
             ofBackground( 255, 255, 255 );	//Set up the background
 
@@ -528,8 +521,8 @@ void ofApp::playSound()
 
 void ofApp::stopSound()
 {
-    for (int i = 0; i < 9; i ++) {
-        for (int j = 0; j < 6; j++) {
+    for (int i = 0; i < NPLANETS; i ++) {
+        for (int j = 0; j < NTRACKS; j++) {
             if (sounds[i][j].isPlaying()) {
                 sounds[i][j].stop();
             }
