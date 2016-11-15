@@ -286,7 +286,7 @@ void ofApp::drawFrontWindow(ofEventArgs& args)
             //Draw background rect for spectrum
             ofSetColor( 230, 230, 230 );
             ofFill();
-            ofRect( 10, 700, N * 6, -100 );
+            ofDrawRectangle( 10, 700, N * 6, -100 );
 
             //Draw spectrum
             ofSetColor( 0, 0, 0 );
@@ -299,7 +299,7 @@ void ofApp::drawFrontWindow(ofEventArgs& args)
                 else {
                     ofSetColor( 128, 128, 128 ); //Gray color
                 }
-                ofRect( 10 + i * 5, 700, 3, -spectrum[i] * 100 );
+                ofDrawRectangle( 10 + i * 5, 700, 3, -spectrum[i] * 100 );
             }
 
             //Draw cloud
@@ -312,7 +312,7 @@ void ofApp::drawFrontWindow(ofEventArgs& args)
             ofSetColor( 0, 0, 0 );
             ofFill();
             for (int i=0; i<n; i++) {
-                ofCircle( p[i], 2 );
+                ofDrawCircle( p[i], 2 );
             }
 
             //Draw lines between near points
@@ -321,7 +321,7 @@ void ofApp::drawFrontWindow(ofEventArgs& args)
                 for (int k=j+1; k<n; k++) {
                     if ( ofDist( p[j].x, p[j].y, p[k].x, p[k].y )
                         < dist ) {
-                        ofLine( p[j], p[k] );
+                        ofDrawLine( p[j], p[k] );
                     }
                 }
             }
