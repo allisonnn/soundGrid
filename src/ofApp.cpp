@@ -39,8 +39,8 @@ void ofApp::setup()
     grayThreshNear.allocate(kinect.width, kinect.height);
     grayThreshFar.allocate(kinect.width, kinect.height);
 
-    nearThreshold = 252.45;
-    farThreshold = 196.35;
+    nearThreshold = 230.175;
+    farThreshold = 130.4;
     bThreshWithOpenCV = true;
 
     ofSetFrameRate(60);
@@ -251,7 +251,7 @@ void ofApp::drawGroundWindow (ofEventArgs & args)
         ofPoint center = toOf(contourFinder.getCenter(i));
         int age = tracker.getAge(label);
 
-        ofSetColor(ofColor::green);
+        //ofSetColor(ofColor::green);
         ofVec3f worldPoint = kinect.getWorldCoordinateAt(center.x, center.y);
         ofVec2f projectedPoint = kpt.getProjectedPoint(worldPoint);
         ofDrawCircle(GROUND_PROJECTOR_RESOLUTION_X * projectedPoint.x, GROUND_PROJECTOR_RESOLUTION_Y * projectedPoint.y, 50);
@@ -264,7 +264,7 @@ void ofApp::drawGroundWindow (ofEventArgs & args)
 
 
     //=======UNCOMMENT THIS PART TO TEST RESPONDING GRIDS========
-    drawDot();
+    //drawDot();
 
 }
 
