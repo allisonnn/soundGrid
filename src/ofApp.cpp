@@ -90,15 +90,9 @@ void ofApp::setup()
     }
     // not start showing animation on front screen
     animation = false;
-    video[0].loadMovie( "videos/Uranus.mp4" );
-    video[1].loadMovie( "videos/Earth.mp4");
-    video[2].loadMovie( "videos/Neptune.mp4");
-    video[3].loadMovie( "videos/Jupiter.mp4");
-    video[4].loadMovie( "video/Saturn.mp4");
-    video[5].loadMovie( "videos/Saturn.mp4");
-    video[6].loadMovie( "videos/Mars.mp4");
-    video[7].loadMovie( "videos/Venus.mp4");
-    video[8].loadMovie( "videos/Mercury.mp4");
+    for (int i = 0; i < 9; i++) {
+        video[i].load("videos/" + to_string(i) + ".mp4");
+    }
     //set currentposition = 4 to avoid show the first vedio at the beginning
     currentPosition = 4;
 
@@ -284,7 +278,7 @@ void ofApp::drawGroundWindow (ofEventArgs & args)
 
 
     //=======UNCOMMENT THIS PART TO TEST RESPONDING GRIDS========
-    //drawDot();
+    drawDot();
 
 }
 
