@@ -301,7 +301,7 @@ void ofApp::drawFrontWindow(ofEventArgs& args)
                 else {
                     ofSetColor( 128, 128, 128 ); //Gray color
                 }
-                ofDrawRectangle( 10 + i * 5, 700, 3, -spectrum[i] * 100 );
+                ofDrawRectangle( 10 + i * 5, spectrum[i] * 1000, 3, 3 );
             }
 
             //Draw cloud
