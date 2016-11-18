@@ -39,8 +39,8 @@ void ofApp::setup()
     grayThreshNear.allocate(kinect.width, kinect.height);
     grayThreshFar.allocate(kinect.width, kinect.height);
 
-    nearThreshold = 252.45;
-    farThreshold = 196.35;
+    nearThreshold = 230.175;
+    farThreshold = 130.4;
     bThreshWithOpenCV = true;
 
     ofSetFrameRate(60);
@@ -52,15 +52,8 @@ void ofApp::setup()
     kpt.loadCalibration("calibration_data/calibration.xml");
 
     //sounds
-//    planet0.load("sounds/1085.mp3");
-//    planet1.load("sounds/1085.mp3");
-//    planet2.load("sounds/Violet.mp3");
-
-//    for (int i = 0; i < planet0.size(); i++) {
-//        planet0[i].load("sounds/" + to_string(i) + ".mp3");
-//    }
-    for (int i = 0; i < 9; i++) {
-        for (int j = 0; j < 6; j++) {
+    for (int i = 0; i < NPLANETS; i++) {
+        for (int j = 0; j < NTRACKS; j++) {
             sounds[i][j].load("sounds/" + to_string(i) + "_" + to_string(j) + ".mp3");
             sounds[i][j].setLoop(true);
         }
@@ -71,6 +64,7 @@ void ofApp::setup()
     receiver.setup(12000);
 
     // grid
+    gridBG.load("sprites/gridBackground.png");
     for(int i=0; i<NGRIDS; i++){
         grids[i].setup(i);
     }
@@ -107,7 +101,7 @@ void ofApp::setup()
     video[8].loadMovie( "videos/Mercury.mp4");
     //set currentposition = 4 to avoid show the first vedio at the beginning
     currentPosition = 4;
-    
+
 
 
 
@@ -264,6 +258,7 @@ void ofApp::drawGroundWindow (ofEventArgs & args)
     if (state == "start") {
         start.draw(364, 236, 236, 236);
     } else if (state == "play") {
+        gridBG.draw(128, 0);
         for(int i=0; i<NGRIDS; i++){
             grids[i].draw();
         }
@@ -276,7 +271,7 @@ void ofApp::drawGroundWindow (ofEventArgs & args)
         ofPoint center = toOf(contourFinder.getCenter(i));
         int age = tracker.getAge(label);
 
-        ofSetColor(ofColor::green);
+        //ofSetColor(ofColor::green);
         ofVec3f worldPoint = kinect.getWorldCoordinateAt(center.x, center.y);
         ofVec2f projectedPoint = kpt.getProjectedPoint(worldPoint);
         ofDrawCircle(GROUND_PROJECTOR_RESOLUTION_X * projectedPoint.x, GROUND_PROJECTOR_RESOLUTION_Y * projectedPoint.y, 50);
@@ -289,7 +284,7 @@ void ofApp::drawGroundWindow (ofEventArgs & args)
 
 
     //=======UNCOMMENT THIS PART TO TEST RESPONDING GRIDS========
-    drawDot();
+    //drawDot();
 
 }
 
@@ -305,16 +300,17 @@ void ofApp::drawDot()
 }
 
 void ofApp::drawFrontWindow(ofEventArgs& args)
-{   // visualize sound part
+{
+    // visualize sound part
     /*
-    for (int i = 0; i < 9; i++) {
+    for (int i = 0; i < NPLANETS; i++) {
         if (sounds[i][0].isPlaying()) {
             ofBackground( 255, 255, 255 );	//Set up the background
 
             //Draw background rect for spectrum
             ofSetColor( 230, 230, 230 );
             ofFill();
-            ofRect( 10, 700, N * 6, -100 );
+            ofDrawRectangle( 10, 700, N * 6, -100 );
 
             //Draw spectrum
             ofSetColor( 0, 0, 0 );
@@ -327,7 +323,7 @@ void ofApp::drawFrontWindow(ofEventArgs& args)
                 else {
                     ofSetColor( 128, 128, 128 ); //Gray color
                 }
-                ofRect( 10 + i * 5, 700, 3, -spectrum[i] * 100 );
+                ofDrawRectangle( 10 + i * 5, spectrum[i] * 1000, 3, 3 );
             }
 
             //Draw cloud
@@ -340,7 +336,7 @@ void ofApp::drawFrontWindow(ofEventArgs& args)
             ofSetColor( 0, 0, 0 );
             ofFill();
             for (int i=0; i<n; i++) {
-                ofCircle( p[i], 2 );
+                ofDrawCircle( p[i], 2 );
             }
 
             //Draw lines between near points
@@ -349,7 +345,7 @@ void ofApp::drawFrontWindow(ofEventArgs& args)
                 for (int k=j+1; k<n; k++) {
                     if ( ofDist( p[j].x, p[j].y, p[k].x, p[k].y )
                         < dist ) {
-                        ofLine( p[j], p[k] );
+                        ofDrawLine( p[j], p[k] );
                     }
                 }
             }
@@ -359,9 +355,9 @@ void ofApp::drawFrontWindow(ofEventArgs& args)
         }
     }
     */
-    
-    
-    
+
+
+
     //add animation part according to the currentposition
     if(animation == true && currentPosition != 4)
     {
@@ -369,14 +365,14 @@ void ofApp::drawFrontWindow(ofEventArgs& args)
         {
             ofBackground( 0, 0, 0, 128 );
             video[currentPosition].play();
-            
+
         }
-        
-        
+
+
     }
-    
+
     //draw has to be outside of condition otherwise only static pictures
-    
+
     //draw vedio
     ofBackground( 0, 0 , 0, 128);
     video[currentPosition].draw((currentPosition % 3) * (ofGetWindowWidth() / 3) + 50, floor(currentPosition / 3) * (ofGetWindowHeight() / 3) + 20);
@@ -511,7 +507,7 @@ void ofApp::checkPoint(ofVec2f point)
     int cp;
     float dt;
 
-    
+
 
     if (state == "start") {
 
@@ -534,7 +530,7 @@ void ofApp::checkPoint(ofVec2f point)
                 state = "play";
             }
         }
-        
+
 
     } else if (state == "play") {
         for (int i = 0; i < NGRIDS; i++) {
@@ -543,7 +539,7 @@ void ofApp::checkPoint(ofVec2f point)
                 currentPosition = cp;
             }
         }
-        
+
         // Leave grids reset timer
         if (cp == -2) {
             for (int i = 0; i < NGRIDS; i++) {
@@ -552,7 +548,7 @@ void ofApp::checkPoint(ofVec2f point)
             stopSound();
             originalPosition = -2;
             animation = false;
-            
+
             // New timer when jump into another different grid
         } else if (originalPosition != currentPosition) {
             stopSound();
@@ -583,8 +579,8 @@ void ofApp::playSound()
 
 void ofApp::stopSound()
 {
-    for (int i = 0; i < 9; i ++) {
-        for (int j = 0; j < 6; j++) {
+    for (int i = 0; i < NPLANETS; i ++) {
+        for (int j = 0; j < NTRACKS; j++) {
             if (sounds[i][j].isPlaying()) {
                 sounds[i][j].stop();
             }

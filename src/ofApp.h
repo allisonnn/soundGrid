@@ -15,8 +15,9 @@
 #define PORT 8001
 #define IP_ADDRESS "127.0.0.1"
 #define NGRIDS 9
-#define NTRACKS 5
 #define TIME_DELAY 1
+#define NPLANETS 9
+#define NTRACKS 6
 
 using namespace ofxCv;
 using namespace cv;
@@ -65,7 +66,7 @@ public:
     //ofSoundPlayer planet0;
     //ofSoundPlayer planet1;
     //ofSoundPlayer planet2;
-    ofSoundPlayer sounds [9][6];
+    ofSoundPlayer sounds [NPLANETS][NTRACKS];
     //vector<ofSoundPlayer> planet0;
     
     //osc
@@ -74,6 +75,7 @@ public:
     
     //grid
     Grid grids[NGRIDS];
+    ofImage gridBG;
     
     ofPath cursor;
     int currentPosition;
