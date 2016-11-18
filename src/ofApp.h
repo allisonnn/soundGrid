@@ -75,6 +75,7 @@ public:
     
     //grid
     Grid grids[NGRIDS];
+    ofImage gridBG;
     
     ofPath cursor;
     int currentPosition;

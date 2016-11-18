@@ -49,6 +49,9 @@ public:
     
     float mainMargin;
     string mode;
+    
+    ofImage gridGlow;
+    ofVideoPlayer video;
 };
 
 #endif /* Grid_h */

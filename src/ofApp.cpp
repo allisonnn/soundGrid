@@ -64,6 +64,7 @@ void ofApp::setup()
     receiver.setup(12000);
 
     // grid
+    gridBG.load("sprites/gridBackground.png");
     for(int i=0; i<NGRIDS; i++){
         grids[i].setup(i);
     }
@@ -237,6 +238,7 @@ void ofApp::drawGroundWindow (ofEventArgs & args)
     if (state == "start") {
         start.draw(364, 236, 236, 236);
     } else if (state == "play") {
+        gridBG.draw(128, 0);
         for(int i=0; i<NGRIDS; i++){
             grids[i].draw();
         }
@@ -262,7 +264,7 @@ void ofApp::drawGroundWindow (ofEventArgs & args)
 
 
     //=======UNCOMMENT THIS PART TO TEST RESPONDING GRIDS========
-    //drawDot();
+    drawDot();
 
 }
 
