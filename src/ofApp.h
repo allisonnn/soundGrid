@@ -84,6 +84,9 @@ public:
     void stopSound();
     
     string state;
+    //add for the animation part
+    bool animation;
+    ofVideoPlayer video[9];
     
     ofTrueTypeFont font;
     

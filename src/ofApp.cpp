@@ -94,6 +94,24 @@ void ofApp::setup()
         tx[j] = ofRandom( 0, 1000 );
         ty[j] = ofRandom( 0, 1000 );
     }
+    // not start showing animation on front screen
+    animation = false;
+    video[0].loadMovie( "videos/Uranus.mp4" );
+    video[1].loadMovie( "videos/Earth.mp4");
+    video[2].loadMovie( "videos/Neptune.mp4");
+    video[3].loadMovie( "videos/Jupiter.mp4");
+    video[4].loadMovie( "video/Saturn.mp4");
+    video[5].loadMovie( "videos/Saturn.mp4");
+    video[6].loadMovie( "videos/Mars.mp4");
+    video[7].loadMovie( "videos/Venus.mp4");
+    video[8].loadMovie( "videos/Mercury.mp4");
+    //set currentposition = 4 to avoid show the first vedio at the beginning
+    currentPosition = 4;
+    
+
+
+
+
 }
 
 //--------------------------------------------------------------
@@ -181,6 +199,8 @@ void ofApp::update()
         p[j].x = ofSignedNoise( tx[j] ) * Rad;
         p[j].y = ofSignedNoise( ty[j] ) * Rad;
     }
+    //update video
+    video[currentPosition].update();
 
 }
 
@@ -285,7 +305,8 @@ void ofApp::drawDot()
 }
 
 void ofApp::drawFrontWindow(ofEventArgs& args)
-{
+{   // visualize sound part
+    /*
     for (int i = 0; i < 9; i++) {
         if (sounds[i][0].isPlaying()) {
             ofBackground( 255, 255, 255 );	//Set up the background
@@ -337,6 +358,36 @@ void ofApp::drawFrontWindow(ofEventArgs& args)
             ofPopMatrix();
         }
     }
+    */
+    
+    
+    
+    //add animation part according to the currentposition
+    if(animation == true && currentPosition != 4)
+    {
+        if(!video[currentPosition].isPlaying())
+        {
+            ofBackground( 0, 0, 0, 128 );
+            video[currentPosition].play();
+            
+        }
+        
+        
+    }
+    
+    //draw has to be outside of condition otherwise only static pictures
+    
+    //draw vedio
+    ofBackground( 0, 0 , 0, 128);
+    video[currentPosition].draw((currentPosition % 3) * (ofGetWindowWidth() / 3) + 50, floor(currentPosition / 3) * (ofGetWindowHeight() / 3) + 20);
+    //draw lines
+
+    ofSetColor(255,255,255);
+    ofFill();
+    ofDrawLine(0, ofGetWindowHeight() / 3, ofGetWindowWidth(), ofGetWindowHeight() / 3);
+    ofDrawLine(0, (ofGetWindowHeight() / 3) * 2, ofGetWindowWidth(), (ofGetWindowHeight() / 3) * 2);
+    ofDrawLine(ofGetWindowWidth() / 3, 0, ofGetWindowWidth() / 3, ofGetWindowHeight());
+    ofDrawLine((ofGetWindowWidth() / 3) * 2, 0, (ofGetWindowWidth() / 3) * 2, ofGetWindowHeight());
 }
 
 //--------------------------------------------------------------
@@ -460,6 +511,7 @@ void ofApp::checkPoint(ofVec2f point)
     int cp;
     float dt;
 
+    
 
     if (state == "start") {
 
@@ -482,16 +534,16 @@ void ofApp::checkPoint(ofVec2f point)
                 state = "play";
             }
         }
+        
 
     } else if (state == "play") {
         for (int i = 0; i < NGRIDS; i++) {
             cp = grids[i].getCurrentPosition(point);
-
             if (cp >= 0) {
                 currentPosition = cp;
             }
         }
-
+        
         // Leave grids reset timer
         if (cp == -2) {
             for (int i = 0; i < NGRIDS; i++) {
@@ -499,12 +551,14 @@ void ofApp::checkPoint(ofVec2f point)
             }
             stopSound();
             originalPosition = -2;
-
-            // New timer
+            animation = false;
+            
+            // New timer when jump into another different grid
         } else if (originalPosition != currentPosition) {
             stopSound();
             startTime = ofGetElapsedTimef();
             originalPosition = currentPosition;
+            animation = false;
 
             // Still there
         } else if (originalPosition == currentPosition) {
@@ -513,6 +567,7 @@ void ofApp::checkPoint(ofVec2f point)
             if(dt >= TIME_DELAY) {
                 playSound();
                 grids[currentPosition].light();
+                animation = true;
             }
 
         }
@@ -536,3 +591,5 @@ void ofApp::stopSound()
         }
     }
 }
+
+
