@@ -1,19 +1,11 @@
 #include "ofApp.h"
 
-const int N = 256;		//Number of bands in spectrum
+const int N = 360;		//Number of bands in spectrum
 float spectrum[ N ];	//Smoothed spectrum values
 float Rad = 500;		//Cloud raduis parameter
 float Vel = 0.1;		//Cloud points velocity parameter
 int bandRad = 2;		//Band index in spectrum, affecting Rad value
 int bandVel = 100;		//Band index in spectrum, affecting Vel value
-
-const int n = 300;		//Number of cloud points
-
-//Offsets for Perlin noise calculation for points
-float tx[n], ty[n];
-ofPoint p[n];			//Cloud's points positions
-
-float time0 = 0;		//Time value, used for dt computing
 
 //--------------------------------------------------------------
 void ofApp::setup()
@@ -39,15 +31,15 @@ void ofApp::setup()
     grayThreshNear.allocate(kinect.width, kinect.height);
     grayThreshFar.allocate(kinect.width, kinect.height);
 
-    nearThreshold = 230.175;
-    farThreshold = 130.4;
+    nearThreshold = 230;
+    farThreshold = 128.75;
     bThreshWithOpenCV = true;
 
     ofSetFrameRate(60);
 
     // zero the tilt on startup
-    angle = 3;
-    kinect.setCameraTiltAngle(angle);
+    //angle = 3;
+    //kinect.setCameraTiltAngle(angle);
 
     kpt.loadCalibration("calibration_data/calibration.xml");
 
@@ -55,7 +47,11 @@ void ofApp::setup()
     for (int i = 0; i < NPLANETS; i++) {
         for (int j = 0; j < NTRACKS; j++) {
             sounds[i][j].load("sounds/" + to_string(i) + "_" + to_string(j) + ".mp3");
-            sounds[i][j].setLoop(true);
+            if (i != 4) {
+                sounds[i][j].setLoop(true);
+            } else {
+                sounds[i][j].setLoop(false);
+            }
         }
     }
 
@@ -69,9 +65,6 @@ void ofApp::setup()
         grids[i].setup(i);
     }
 
-    // fonts
-    font.load("fonts/BEBAS.ttf", 42);
-
     // state
     state = "start";
     start.load("sprites/start.png");
@@ -84,21 +77,17 @@ void ofApp::setup()
     }
 
     //Initialize points offsets by random numbers
-    for ( int j=0; j<n; j++ ) {
-        tx[j] = ofRandom( 0, 1000 );
-        ty[j] = ofRandom( 0, 1000 );
-    }
+//    for ( int j=0; j<n; j++ ) {
+//        tx[j] = ofRandom( 0, 1000 );
+//        ty[j] = ofRandom( 0, 1000 );
+//    }
     // not start showing animation on front screen
     animation = false;
-    for (int i = 0; i < 9; i++) {
+    for (int i = 0; i < NGRIDS; i++) {
         video[i].load("videos/" + to_string(i) + ".mp4");
     }
     //set currentposition = 4 to avoid show the first vedio at the beginning
     currentPosition = 4;
-
-
-
-
 
 }
 
@@ -162,34 +151,16 @@ void ofApp::update()
         spectrum[i] *= 0.97;	//Slow decreasing
         spectrum[i] = max( spectrum[i], val[i] );
     }
-
-    //Update particles using spectrum values
-
-    //Computing dt as a time between the last
-    //and the current calling of update()
-    float time = ofGetElapsedTimef();
-    float dt = time - time0;
-    dt = ofClamp( dt, 0.0, 0.1 );
-    time0 = time; //Store the current time
-
-    //Update Rad and Vel from spectrum
-    //Note, the parameters in ofMap's were tuned for best result
-    //just for current music track
-    Rad = ofMap( spectrum[ bandRad ], 1, 3, 400, 800, true );
-    Vel = ofMap( spectrum[ bandVel ], 0, 0.1, 0.05, 0.5 );
-
-    //Update particles positions
-    for (int j=0; j<n; j++) {
-        tx[j] += Vel * dt;	//move offset
-        ty[j] += Vel * dt;	//move offset
-        //Calculate Perlin's noise in [-1, 1] and
-        //multiply on Rad
-        p[j].x = ofSignedNoise( tx[j] ) * Rad;
-        p[j].y = ofSignedNoise( ty[j] ) * Rad;
+    
+    waveform.clear();
+    for(size_t i = 0; i < N; i++) {
+        float x = ofMap(i, 0, 50, 0, FRONT_PROJECTOR_RESOLUTION_X);
+        float y = ofMap(spectrum[i], 0, 1, FRONT_PROJECTOR_RESOLUTION_Y/4, FRONT_PROJECTOR_RESOLUTION_Y/4*3);
+        waveform.addVertex(x, y);
     }
+
     //update video
     video[currentPosition].update();
-
 }
 
 void ofApp::sendMessage(string m) {
@@ -250,7 +221,7 @@ void ofApp::drawGroundWindow (ofEventArgs & args)
     ofSetBackgroundColor(0, 0, 0);
 
     if (state == "start") {
-        start.draw(364, 236, 236, 236);
+        start.draw(128 + 250, 250, 268, 268);
     } else if (state == "play") {
         gridBG.draw(128, 0);
         for(int i=0; i<NGRIDS; i++){
@@ -280,6 +251,7 @@ void ofApp::drawGroundWindow (ofEventArgs & args)
     //=======UNCOMMENT THIS PART TO TEST RESPONDING GRIDS========
     drawDot();
 
+    countTimerForAlert();
 }
 
 void ofApp::drawDot()
@@ -296,94 +268,55 @@ void ofApp::drawDot()
 void ofApp::drawFrontWindow(ofEventArgs& args)
 {
     // visualize sound part
-    /*
     for (int i = 0; i < NPLANETS; i++) {
         if (sounds[i][0].isPlaying()) {
             ofBackground( 255, 255, 255 );	//Set up the background
 
-            //Draw background rect for spectrum
-            ofSetColor( 230, 230, 230 );
-            ofFill();
-            ofDrawRectangle( 10, 700, N * 6, -100 );
-
             //Draw spectrum
             ofSetColor( 0, 0, 0 );
-            for (int i=0; i<N; i++) {
-                //Draw bandRad and bandVel by black color,
-                //and other by gray color
-                if ( i == bandRad || i == bandVel ) {
-                    ofSetColor( 0, 0, 0 ); //Black color
-                }
-                else {
-                    ofSetColor( 128, 128, 128 ); //Gray color
-                }
-                ofDrawRectangle( 10 + i * 5, spectrum[i] * 1000, 3, 3 );
-            }
-
-            //Draw cloud
-
-            //Move center of coordinate system to the screen center
-            ofPushMatrix();
-            ofTranslate( ofGetWidth() / 2, ofGetHeight() / 2 );
-
-            //Draw points
-            ofSetColor( 0, 0, 0 );
-            ofFill();
-            for (int i=0; i<n; i++) {
-                ofDrawCircle( p[i], 2 );
-            }
-
-            //Draw lines between near points
-            float dist = 40;	//Threshold parameter of distance
-            for (int j=0; j<n; j++) {
-                for (int k=j+1; k<n; k++) {
-                    if ( ofDist( p[j].x, p[j].y, p[k].x, p[k].y )
-                        < dist ) {
-                        ofDrawLine( p[j], p[k] );
-                    }
-                }
-            }
-
-            //Restore coordinate system
-            ofPopMatrix();
+//            float soundPos = sounds[i][0].getPosition();
+//            
+//            for (int j=0; j<N; j++) {
+//                ofDrawRectangle( ofMap(soundPos, 0, 1, 0, FRONT_PROJECTOR_RESOLUTION_X) * ofMap(j, 0, N, 0, 1), ofMap(spectrum[j], 0, 1, 0, FRONT_PROJECTOR_RESOLUTION_Y), 3, 3 );
+//            }
+            waveform.draw();
         }
     }
-    */
 
 
 
-    //add animation part according to the currentposition
-    if(animation == true && currentPosition != 4)
-    {
-        if(!video[currentPosition].isPlaying())
-        {
-            ofBackground( 0, 0, 0, 128 );
-            video[currentPosition].play();
-
-        }
-
-
-    }
-
-    //draw has to be outside of condition otherwise only static pictures
-
-    //draw vedio
-    ofBackground( 0, 0 , 0, 128);
-    video[currentPosition].draw((currentPosition % 3) * (ofGetWindowWidth() / 3) + 50, floor(currentPosition / 3) * (ofGetWindowHeight() / 3) + 20);
-    //draw lines
-
-    ofSetColor(255,255,255);
-    ofFill();
-    ofDrawLine(0, ofGetWindowHeight() / 3, ofGetWindowWidth(), ofGetWindowHeight() / 3);
-    ofDrawLine(0, (ofGetWindowHeight() / 3) * 2, ofGetWindowWidth(), (ofGetWindowHeight() / 3) * 2);
-    ofDrawLine(ofGetWindowWidth() / 3, 0, ofGetWindowWidth() / 3, ofGetWindowHeight());
-    ofDrawLine((ofGetWindowWidth() / 3) * 2, 0, (ofGetWindowWidth() / 3) * 2, ofGetWindowHeight());
+//    //add animation part according to the currentposition
+//    if(animation == true && currentPosition != 4)
+//    {
+//        if(!video[currentPosition].isPlaying())
+//        {
+//            ofBackground( 0, 0, 0, 128 );
+//            video[currentPosition].play();
+//
+//        }
+//
+//
+//    }
+//
+//    //draw has to be outside of condition otherwise only static pictures
+//
+//    //draw vedio
+//    ofBackground( 0, 0 , 0, 128);
+//    video[currentPosition].draw((currentPosition % 3) * (ofGetWindowWidth() / 3) + 50, floor(currentPosition / 3) * (ofGetWindowHeight() / 3) + 20);
+//    //draw lines
+//
+//    ofSetColor(255,255,255);
+//    ofFill();
+//    ofDrawLine(0, ofGetWindowHeight() / 3, ofGetWindowWidth(), ofGetWindowHeight() / 3);
+//    ofDrawLine(0, (ofGetWindowHeight() / 3) * 2, ofGetWindowWidth(), (ofGetWindowHeight() / 3) * 2);
+//    ofDrawLine(ofGetWindowWidth() / 3, 0, ofGetWindowWidth() / 3, ofGetWindowHeight());
+//    ofDrawLine((ofGetWindowWidth() / 3) * 2, 0, (ofGetWindowWidth() / 3) * 2, ofGetWindowHeight());
 }
 
 //--------------------------------------------------------------
 void ofApp::exit()
 {
-    kinect.setCameraTiltAngle(3); // zero the tilt on exit
+    //kinect.setCameraTiltAngle(3); // zero the tilt on exit
     kinect.close();
 }
 
@@ -502,10 +435,9 @@ void ofApp::checkPoint(ofVec2f point)
     float dt;
 
 
-
     if (state == "start") {
 
-        if (point.x >= (128 + 236 + 20) && point.x <= (128 + 236 + 20 + 216) && point.y >= (236 + 20) && point.y <= (236 + 20 + 216)) {
+        if (point.x >= (128 + 250) && point.x <= (128 + 250 + 268) && point.y >= 250 && point.y <= (250 + 268)) {
             cp = 1;
         } else {
             cp = 0;
@@ -522,6 +454,7 @@ void ofApp::checkPoint(ofVec2f point)
             dt = ofGetElapsedTimef() - startTime;
             if (dt >= TIME_DELAY) {
                 state = "play";
+                startTimeForAlertTimer = ofGetElapsedTimef();
             }
         }
 
@@ -542,6 +475,7 @@ void ofApp::checkPoint(ofVec2f point)
             stopSound();
             originalPosition = -2;
             animation = false;
+            startTimeForAlertTimer = ofGetElapsedTimef();
 
             // New timer when jump into another different grid
         } else if (originalPosition != currentPosition) {
@@ -549,6 +483,7 @@ void ofApp::checkPoint(ofVec2f point)
             startTime = ofGetElapsedTimef();
             originalPosition = currentPosition;
             animation = false;
+            startTimeForAlertTimer = ofGetElapsedTimef();
 
             // Still there
         } else if (originalPosition == currentPosition) {
@@ -567,7 +502,14 @@ void ofApp::checkPoint(ofVec2f point)
 void ofApp::playSound()
 {
     if (!sounds[currentPosition][0].isPlaying()) {
-        sounds[currentPosition][0].play();
+        if (currentPosition == 4) {
+            if (played == false) {
+                sounds[currentPosition][0].play();
+                played = true;
+            }
+        } else {
+            sounds[currentPosition][0].play();
+        }
     }
 }
 
@@ -582,4 +524,19 @@ void ofApp::stopSound()
     }
 }
 
+void ofApp::countTimerForAlert()
+{
+    
+    float curTime = ofGetElapsedTimef();
+    float dt = curTime - startTimeForAlertTimer;
+
+    if (dt >= TIME_ALERT) {
+        //Glowing randomly!!
+        int pos;
+        do {
+            pos = ofRandom(0, NGRIDS);
+        } while (pos == currentPosition || pos == 4);
+        grids[pos].glow(curTime);
+    }
+}
 

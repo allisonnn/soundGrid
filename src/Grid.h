@@ -25,6 +25,7 @@ public:
     int getCurrentPosition(ofVec2f point);
     void light();
     void reset();
+    void glow(float startTime);
     
     // variables
     float x;        // position
@@ -52,6 +53,11 @@ public:
     
     ofImage gridGlow;
     ofVideoPlayer video;
+    ofImage planetImage;
+    
+    ofTrueTypeFont font;
+    
+    void getX();
 };
 
 #endif /* Grid_h */

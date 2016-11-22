@@ -16,6 +16,7 @@
 #define IP_ADDRESS "127.0.0.1"
 #define NGRIDS 9
 #define TIME_DELAY 1
+#define TIME_ALERT 5
 #define NPLANETS 9
 #define NTRACKS 6
 
@@ -86,15 +87,19 @@ public:
     void stopSound();
     
     string state;
+    
     //add for the animation part
     bool animation;
     ofVideoPlayer video[9];
-    
-    ofTrueTypeFont font;
     
     ofImage start;
     
     void drawDot();
     
     float startTime;
+    bool played = false;
+    ofPolyline waveform;
+    
+    float startTimeForAlertTimer;
+    void countTimerForAlert();
 };

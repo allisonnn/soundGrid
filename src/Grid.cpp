@@ -18,8 +18,12 @@ void Grid::setup(int _pos)
     mainMargin = (GROUND_PROJECTOR_RESOLUTION_X - GROUND_PROJECTOR_RESOLUTION_Y) / 2;
     generateGrids();
     
+    // fonts
+    font.load("fonts/BEBAS.ttf", 32);
+    
     gridGlow.load("sprites/gridGlow.png");
     if (gridPos != 4) {
+        planetImage.load("sprites/planets/" + to_string(gridPos) + ".png");
         video.load("videos/" + to_string(gridPos) + ".mp4");
         video.play();
     }
@@ -85,39 +89,30 @@ int Grid::getCurrentPosition(ofVec2f point)
 
 void Grid::light()
 {
-    //TODO: stupid function
+    video.draw(128 + (250 + 9) * (gridPos % 3) + 25, (250 + 9) * floor(gridPos / 3) + 25, 200, 200);
+    //gridGlow.draw(128 + (250 + 9) * (gridPos % 3), (250 + 9) * floor(gridPos / 3), 250, 250);
+}
+
+void Grid::glow(float startTime)
+{
+    float dt = ofGetElapsedTimef() - startTime;
+    gridGlow.draw(128 + (250 + 9) * (gridPos % 3), (250 + 9) * floor(gridPos / 3), 250, 250);
+}
+
+void Grid::getX()
+{
     
-    if(gridPos == 0) {
-        gridGlow.draw(128, 0);
-        video.draw(128 + 25, 25, 200, 200);
-    } else if (gridPos == 1) {
-        video.draw(128 + 250 + 9 + 25, 25, 200, 200);
-        gridGlow.draw(128 + 250 + 9, 0);
-    } else if (gridPos == 2) {
-        video.draw(128 + 250 + 9 + 250 + 9 + 25, 25, 200, 200);
-        gridGlow.draw(128 + 250 + 9 + 250 + 9, 0);
-    } else if (gridPos == 3) {
-        video.draw(128 + 25, 250 + 9 + 25, 200, 200);
-        gridGlow.draw(128, 250 + 9);
-    } else if (gridPos == 4) {
-        gridGlow.draw(128 + 250 + 9, 250 + 9);
-    } else if (gridPos == 5) {
-        video.draw(128 + 250 + 9 + 250 + 9 + 25, 250 + 9 + 25, 200, 200);
-        gridGlow.draw(128 + 250 + 9 + 250 + 9, 250 + 9);
-    } else if (gridPos == 6) {
-        gridGlow.draw(128, 250 + 9 + 250 + 9);
-        video.draw(128 + 25, 250 + 9 + 250 + 9 + 25, 200, 200);
-    } else if (gridPos == 7) {
-        gridGlow.draw(128 + 250 + 9, 250 + 9 + 250 + 9);
-        video.draw(128 + 250 + 9 + 25, 250 + 9 + 250 + 9 + 25, 200, 200);
-    } else if (gridPos == 8) {
-        gridGlow.draw(128 + 250 + 9 + 250 + 9, 250 + 9 + 250 + 9);
-        video.draw(128 + 250 + 9 + 250 + 9 + 25, 250 + 9 + 250 + 9 + 25, 200, 200);
-    }
-     //rectPath.setFillColor(ofColor::green);
 }
 
 void Grid::reset()
 {
-    //rectPath.setFillColor(ofColor::blue);
+//    if(gridPos == 0) {
+//        gridGlow.draw(128, 0);
+//        video.draw(128 + 25, 25, 200, 200);
+//        if (font.isLoaded()) {
+//            ofRectangle rect = font.getStringBoundingBox("EARTH", 100, 100);
+//            font.drawString("EARTH", (250 - rect.width)/2 + 128, (250 + rect.height) / 2);
+//        }
+    
+    planetImage.draw(128 + (250 + 9) * (gridPos % 3), (250 + 9) * floor(gridPos / 3), 250, 250);
 }
