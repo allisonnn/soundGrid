@@ -61,6 +61,15 @@ void ofApp::setup()
 
     // grid
     gridBG.load("sprites/gridBackground.png");
+    front_grid.load("sprites/front_grid.png");
+    front_glow.load("sprites/front_glow.png");
+    headline.load("sprites/Headline.png");
+    instruction.load("sprites/Instruction.png");
+    code.load("sprites/Code.png");
+    radioWave.load("sprites/Radiowave.png");
+    frame.load("sprites/Frame.png");
+    ring.load("sprites/Ring.png");
+    star_back.load("sprites/Stars.png");
     for(int i=0; i<NGRIDS; i++){
         grids[i].setup(i);
     }
@@ -80,15 +89,15 @@ void ofApp::setup()
     animation = false;
     for (int i = 0; i < 9; i++) {
         video[i].load("videos/" + to_string(i) + ".mp4");
+        planet_name[i].load("sprites/planets_name/" + to_string(i) + ".png");
     }
     //set currentposition = 4 to avoid show the first vedio at the beginning
     currentPosition = 4;
     video[currentPosition].play();
     probe.load("videos/Probe.mp4");
     probe.play();
-//    soundWave.load("videos/Soundwave.mp4");
-//    soundWave.play();
-    reset();
+    //soundWave.load("videos/Soundwave.mp4");
+    //soundWave.play();
     up = false;
     timer = 0;
 
@@ -157,16 +166,37 @@ void ofApp::update()
     
     waveform.clear();
 //    450, 334, 350, 100
+    //420, 334, 280, 100
     for(size_t i = 0; i < N; i++) {
-        float x = ofMap(i, 0, 20, 350, 450);
+        float x = ofMap(i, 20, 0, 420, 420 + 280);
         float y = ofMap(spectrum[i], 0, 1, 334, 334 + 100);
-        if (x < 450) {
+        if (x >= 420 && x <= 420 + 20 ) {
+            y = 384;
+        }
+        if (x >= 420 && x <= 420 + 280) {
             waveform.addVertex(x, y);
         }
     }
 
     //update video
     video[currentPosition].update();
+    probe.update();
+    
+    //update timer for flash instruction
+    if(state == "play" && currentPosition == 4)
+    {
+        if(currentPosition != originalPosition)
+        {
+            timer = 0;
+            up = false;
+        }
+        blinkTimer();
+        
+    }
+    if(currentPosition != 4)
+    {
+        up = false;
+    }
 }
 
 void ofApp::sendMessage(string m) {
@@ -279,17 +309,18 @@ void ofApp::drawFrontWindow(ofEventArgs& args)
 {
     //add animation part according to the currentposition
     ofBackground( 0, 0, 0, 128 );
+    star_back.draw(0, 0, ofGetWindowWidth(), ofGetWindowHeight());
     
     //before play state
-    probe.draw(350, 284, 100, 200);
-    gridBG.draw(799, 284, 200, 200);
-    headline.draw(270, 40, 540, 40);
-    //instruction.draw(290, 80, 500, 50 );
-    
+    frame.draw(0, 0, ofGetWindowWidth(), ofGetWindowHeight());
+    probe.draw(350, 314, 70, 140);
+    front_grid.draw(700, 284, 200, 200);
+    headline.draw(290, 95, 430, 40);
+    ring.draw(100, 284, 200, 200);
     //give player instruction to step on grid
     if(up == true)
     {
-        instruction.draw(290, 80, 500, 50 );
+        instruction.draw(300, 125, 400, 50 );
         
     }
     
@@ -304,24 +335,26 @@ void ofApp::drawFrontWindow(ofEventArgs& args)
             
         }
         //put draw outside to avoid disppear
-        video[currentPosition].draw(50, pos_co, c_r, c_r);
-        front_glow.draw(799 + ((currentPosition % 3) * 200 / 3), 284 + (floor(currentPosition / 3) * 200 / 3) , 200 / 3, 200/ 3 );
-        if(wave == true && currentPosition != 4)
+        video[currentPosition].draw(100, 284, 200, 200);
+        planet_name[currentPosition].draw(150, 550, 100, 25);
+        front_glow.draw(700 + ((currentPosition % 3) * 200 / 3), 284 + (floor(currentPosition / 3) * 200 / 3) , 200 / 3, 200/ 3 );
+        if(currentPosition != 4)
         {
-            ofSetColor( 0, 255, 0 );
+            radioWave.draw(250, 284, 150, 200);
+            //soundWave.draw(420, 334, 280, 100);
+            code.draw(350, 570, 420, 100);
+            ofSetColor(0, 255, 0);
             waveform.draw();
-            ofSetColor(0, 0, 0);
-            code.draw(370,600,450,100);
+            ofSetColor(255, 255, 255);
         }
         
     }
     
     if(currentPosition == 4)
     {
-        front_glow.draw(799 + 200 / 3, 284 + 200 / 3, 200 / 3, 200 / 3);
+        front_glow.draw(700 + 200 / 3, 284 + 200 / 3, 200 / 3, 200 / 3);
         
-    }
-}
+    }}
 
 //--------------------------------------------------------------
 void ofApp::exit()
@@ -555,10 +588,25 @@ void ofApp::countTimerForAlert()
     }
 }
 
-void ofApp::reset()
+//not put any local varible to time, will cause problem
+void ofApp::blinkTimer()
 {
-    pos_co = 0;
-    pos_cd = 284;
-    c_r = 100;
-    wave = true;
+    
+    //timer
+    if(timer <= 0)
+    {
+        up = true;
+    }
+    if (timer >= 1)
+    {
+        up = false;
+    }
+    if(up == true)
+    {
+        timer += ofGetLastFrameTime() * 10;
+    }
+    if (up == false)
+    {
+        timer -= ofGetLastFrameTime() * 10;
+    }
 }
