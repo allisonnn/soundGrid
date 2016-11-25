@@ -270,6 +270,7 @@ void ofApp::drawGroundWindow (ofEventArgs & args)
 //    if (contourFinder.size() == 0) {
 //        state = "start";
 //    }
+    countTimerForAlert();
     for(int i = 0; i < contourFinder.size(); i++) {
         vector<cv::Point> points = contourFinder.getContour(i);
         int label = contourFinder.getLabel(i);
@@ -279,7 +280,7 @@ void ofApp::drawGroundWindow (ofEventArgs & args)
         //ofSetColor(ofColor::green);
         ofVec3f worldPoint = kinect.getWorldCoordinateAt(center.x, center.y);
         ofVec2f projectedPoint = kpt.getProjectedPoint(worldPoint);
-        ofDrawCircle(GROUND_PROJECTOR_RESOLUTION_X * projectedPoint.x, GROUND_PROJECTOR_RESOLUTION_Y * projectedPoint.y, 50);
+        //ofDrawCircle(GROUND_PROJECTOR_RESOLUTION_X * projectedPoint.x, GROUND_PROJECTOR_RESOLUTION_Y * projectedPoint.y, 50);
         //ofLog() << projectedPoint << endl;
 
         ofVec2f point = ofVec2f (projectedPoint.x * GROUND_PROJECTOR_RESOLUTION_X, projectedPoint.y * GROUND_PROJECTOR_RESOLUTION_Y);
@@ -289,9 +290,7 @@ void ofApp::drawGroundWindow (ofEventArgs & args)
 
 
     //=======UNCOMMENT THIS PART TO TEST RESPONDING GRIDS========
-    drawDot();
-
-    countTimerForAlert();
+    //drawDot();
 }
 
 void ofApp::drawDot()
@@ -530,13 +529,13 @@ void ofApp::checkPoint(ofVec2f point)
 
             // Still there
         } else if (originalPosition == currentPosition) {
-            dt = ofGetElapsedTimef() - startTime;
+            //dt = ofGetElapsedTimef() - startTime;
 
-            if(dt >= TIME_DELAY) {
+            //if(dt >= TIME_DELAY) {
                 playSound();
                 grids[currentPosition].light();
                 animation = true;
-            }
+            //}
 
         }
     }

@@ -16,7 +16,7 @@
 #define IP_ADDRESS "127.0.0.1"
 #define NGRIDS 9
 #define TIME_DELAY 1
-#define TIME_ALERT 5
+#define TIME_ALERT 3
 #define NPLANETS 9
 #define NTRACKS 6
 
