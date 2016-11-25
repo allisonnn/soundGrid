@@ -75,19 +75,22 @@ void ofApp::setup()
     for (int i=0; i<N; i++) {
         spectrum[i] = 0.0f;
     }
-
-    //Initialize points offsets by random numbers
-//    for ( int j=0; j<n; j++ ) {
-//        tx[j] = ofRandom( 0, 1000 );
-//        ty[j] = ofRandom( 0, 1000 );
-//    }
+    
     // not start showing animation on front screen
     animation = false;
-    for (int i = 0; i < NGRIDS; i++) {
+    for (int i = 0; i < 9; i++) {
         video[i].load("videos/" + to_string(i) + ".mp4");
     }
     //set currentposition = 4 to avoid show the first vedio at the beginning
     currentPosition = 4;
+    video[currentPosition].play();
+    probe.load("videos/Probe.mp4");
+    probe.play();
+//    soundWave.load("videos/Soundwave.mp4");
+//    soundWave.play();
+    reset();
+    up = false;
+    timer = 0;
 
 }
 
@@ -153,10 +156,13 @@ void ofApp::update()
     }
     
     waveform.clear();
+//    450, 334, 350, 100
     for(size_t i = 0; i < N; i++) {
-        float x = ofMap(i, 0, 50, 0, FRONT_PROJECTOR_RESOLUTION_X);
-        float y = ofMap(spectrum[i], 0, 1, FRONT_PROJECTOR_RESOLUTION_Y/4, FRONT_PROJECTOR_RESOLUTION_Y/4*3);
-        waveform.addVertex(x, y);
+        float x = ofMap(i, 0, 20, 350, 450);
+        float y = ofMap(spectrum[i], 0, 1, 334, 334 + 100);
+        if (x < 450) {
+            waveform.addVertex(x, y);
+        }
     }
 
     //update video
@@ -230,6 +236,10 @@ void ofApp::drawGroundWindow (ofEventArgs & args)
     }
 
     RectTracker& tracker = contourFinder.getTracker();
+// uncomment this when runing with kinect
+//    if (contourFinder.size() == 0) {
+//        state = "start";
+//    }
     for(int i = 0; i < contourFinder.size(); i++) {
         vector<cv::Point> points = contourFinder.getContour(i);
         int label = contourFinder.getLabel(i);
@@ -267,50 +277,50 @@ void ofApp::drawDot()
 
 void ofApp::drawFrontWindow(ofEventArgs& args)
 {
-    // visualize sound part
-    for (int i = 0; i < NPLANETS; i++) {
-        if (sounds[i][0].isPlaying()) {
-            ofBackground( 255, 255, 255 );	//Set up the background
-
-            //Draw spectrum
-            ofSetColor( 0, 0, 0 );
-//            float soundPos = sounds[i][0].getPosition();
-//            
-//            for (int j=0; j<N; j++) {
-//                ofDrawRectangle( ofMap(soundPos, 0, 1, 0, FRONT_PROJECTOR_RESOLUTION_X) * ofMap(j, 0, N, 0, 1), ofMap(spectrum[j], 0, 1, 0, FRONT_PROJECTOR_RESOLUTION_Y), 3, 3 );
-//            }
-            waveform.draw();
-        }
+    //add animation part according to the currentposition
+    ofBackground( 0, 0, 0, 128 );
+    
+    //before play state
+    probe.draw(350, 284, 100, 200);
+    gridBG.draw(799, 284, 200, 200);
+    headline.draw(270, 40, 540, 40);
+    //instruction.draw(290, 80, 500, 50 );
+    
+    //give player instruction to step on grid
+    if(up == true)
+    {
+        instruction.draw(290, 80, 500, 50 );
+        
     }
-
-
-
-//    //add animation part according to the currentposition
-//    if(animation == true && currentPosition != 4)
-//    {
-//        if(!video[currentPosition].isPlaying())
-//        {
-//            ofBackground( 0, 0, 0, 128 );
-//            video[currentPosition].play();
-//
-//        }
-//
-//
-//    }
-//
-//    //draw has to be outside of condition otherwise only static pictures
-//
-//    //draw vedio
-//    ofBackground( 0, 0 , 0, 128);
-//    video[currentPosition].draw((currentPosition % 3) * (ofGetWindowWidth() / 3) + 50, floor(currentPosition / 3) * (ofGetWindowHeight() / 3) + 20);
-//    //draw lines
-//
-//    ofSetColor(255,255,255);
-//    ofFill();
-//    ofDrawLine(0, ofGetWindowHeight() / 3, ofGetWindowWidth(), ofGetWindowHeight() / 3);
-//    ofDrawLine(0, (ofGetWindowHeight() / 3) * 2, ofGetWindowWidth(), (ofGetWindowHeight() / 3) * 2);
-//    ofDrawLine(ofGetWindowWidth() / 3, 0, ofGetWindowWidth() / 3, ofGetWindowHeight());
-//    ofDrawLine((ofGetWindowWidth() / 3) * 2, 0, (ofGetWindowWidth() / 3) * 2, ofGetWindowHeight());
+    
+    //after step on any grid
+    if(animation == true)
+    {
+        //avoid the repeat playing static video without animation
+        if(!video[currentPosition].isPlaying())
+        {
+            
+            video[currentPosition].play();
+            
+        }
+        //put draw outside to avoid disppear
+        video[currentPosition].draw(50, pos_co, c_r, c_r);
+        front_glow.draw(799 + ((currentPosition % 3) * 200 / 3), 284 + (floor(currentPosition / 3) * 200 / 3) , 200 / 3, 200/ 3 );
+        if(wave == true && currentPosition != 4)
+        {
+            ofSetColor( 0, 255, 0 );
+            waveform.draw();
+            ofSetColor(0, 0, 0);
+            code.draw(370,600,450,100);
+        }
+        
+    }
+    
+    if(currentPosition == 4)
+    {
+        front_glow.draw(799 + 200 / 3, 284 + 200 / 3, 200 / 3, 200 / 3);
+        
+    }
 }
 
 //--------------------------------------------------------------
@@ -529,14 +539,26 @@ void ofApp::countTimerForAlert()
     
     float curTime = ofGetElapsedTimef();
     float dt = curTime - startTimeForAlertTimer;
+    float aniTime = 0.5;
+    int r;
 
     if (dt >= TIME_ALERT) {
         //Glowing randomly!!
-        int pos;
-        do {
-            pos = ofRandom(0, NGRIDS);
-        } while (pos == currentPosition || pos == 4);
-        grids[pos].glow(curTime);
+        r = (int)floor(dt / aniTime);
+        if (r != oldRForAlert) {
+            do {
+                posForAlert = ofRandom(0, NGRIDS);
+            } while (posForAlert == currentPosition || posForAlert == 4);
+            oldRForAlert = r;
+        }
+        grids[posForAlert].glow(curTime);
     }
 }
 
+void ofApp::reset()
+{
+    pos_co = 0;
+    pos_cd = 284;
+    c_r = 100;
+    wave = true;
+}
