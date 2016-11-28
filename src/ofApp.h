@@ -103,6 +103,7 @@ public:
     ofImage front_glow;
     ofImage ring;
     ofImage star_back;
+    ofImage dot[41];
     //float pos_co;
     //float pos_cd;
     //float moveSpeed = 100;
@@ -115,6 +116,8 @@ public:
     //float blink_dt;
     //float blink_start;
     float timer;
+    int dotCur;
+
     ofTrueTypeFont font;
     
     ofImage start;
