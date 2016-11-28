@@ -56,7 +56,7 @@ void ofApp::setup()
     front_glow.load("sprites/front_glow.png");
     headline.load("sprites/Headline.png");
     instruction.load("sprites/Instruction.png");
-    code.load("sprites/Code.png");
+    code.load("sprites/ProbeCode.png");
     radioWave.load("sprites/Radiowave.png");
     frame.load("sprites/Frame.png");
     ring.load("sprites/Ring.png");
@@ -82,6 +82,11 @@ void ofApp::setup()
         video[i].load("videos/" + to_string(i) + ".mp4");
         planet_name[i].load("sprites/planets_name/" + to_string(i) + ".png");
     }
+    //load the dot animation file
+    for (int i = 0; i < 41; i++)
+    {
+        dot[i].load("sprites/dot/" + to_string(i) + ".png");
+    }
     //set currentposition = 4 to avoid show the first vedio at the beginning
     currentPosition = 4;
     video[currentPosition].play();
@@ -89,6 +94,7 @@ void ofApp::setup()
     probe.play();
     up = false;
     timer = 0;
+    dotCur = 0;
 
 }
 
@@ -174,6 +180,30 @@ void ofApp::update()
     {
         up = false;
     }
+    
+    // update dot animation
+    if(state == "play" && currentPosition != 4)
+    {
+        if(currentPosition != originalPosition)
+        {
+            dotCur = 0;
+        }
+        else if(currentPosition == originalPosition)
+        {
+            if(dotCur < 40)
+            {
+                dotCur++;
+                
+            }
+            else
+            {
+                dotCur = 0;
+            }
+        }
+    }
+    
+    
+
 }
 
 //--------------------------------------------------------------
@@ -321,6 +351,7 @@ void ofApp::drawFrontWindow(ofEventArgs& args)
         {
             radioWave.draw(250, 284, 150, 200);
             code.draw(350, 570, 420, 100);
+            dot[dotCur].draw(0,0,ofGetWindowWidth(), ofGetWindowHeight());
             ofSetColor(0, 255, 0);
             waveform.draw();
             ofSetColor(255, 255, 255);

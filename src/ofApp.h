@@ -95,11 +95,15 @@ public:
     ofImage front_glow;
     ofImage ring;
     ofImage star_back;
+    
+    ofImage dot[41];
 
     bool wave = false;
     bool up;
     void blinkTimer();
     float timer;
+    int dotCur;
+
     ofTrueTypeFont font;
     
     ofImage start;
