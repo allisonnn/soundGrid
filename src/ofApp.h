@@ -15,8 +15,10 @@
 #define PORT 8001
 #define IP_ADDRESS "127.0.0.1"
 #define NGRIDS 9
-#define NTRACKS 5
 #define TIME_DELAY 1
+#define TIME_ALERT 3
+#define NPLANETS 9
+#define NTRACKS 6
 
 using namespace ofxCv;
 using namespace cv;
@@ -65,7 +67,7 @@ public:
     //ofSoundPlayer planet0;
     //ofSoundPlayer planet1;
     //ofSoundPlayer planet2;
-    ofSoundPlayer sounds [9][6];
+    ofSoundPlayer sounds [NPLANETS][NTRACKS];
     //vector<ofSoundPlayer> planet0;
     
     //osc
@@ -74,6 +76,7 @@ public:
     
     //grid
     Grid grids[NGRIDS];
+    ofImage gridBG;
     
     ofPath cursor;
     int currentPosition;
@@ -85,6 +88,33 @@ public:
     
     string state;
     
+    //add for the animation part
+    bool animation;
+    ofVideoPlayer video[9];
+    ofVideoPlayer probe;
+    ofVideoPlayer soundWave;
+    ofImage instruction;
+    ofImage code;
+    ofImage planet_name[9];
+    ofImage headline;
+    ofImage radioWave;
+    ofImage frame;
+    ofImage front_grid;
+    ofImage front_glow;
+    ofImage ring;
+    ofImage star_back;
+    //float pos_co;
+    //float pos_cd;
+    //float moveSpeed = 100;
+    //float upSpeed = 40;
+    //float c_r = 100;
+    bool wave = false;
+    //bool show;
+    bool up;
+    void blinkTimer();
+    //float blink_dt;
+    //float blink_start;
+    float timer;
     ofTrueTypeFont font;
     
     ofImage start;
@@ -92,4 +122,11 @@ public:
     void drawDot();
     
     float startTime;
+    bool played = false;
+    ofPolyline waveform;
+    
+    float startTimeForAlertTimer;
+    void countTimerForAlert();
+    int posForAlert;
+    int oldRForAlert;
 };

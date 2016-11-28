@@ -1,19 +1,11 @@
 #include "ofApp.h"
 
-const int N = 256;		//Number of bands in spectrum
+const int N = 360;		//Number of bands in spectrum
 float spectrum[ N ];	//Smoothed spectrum values
 float Rad = 500;		//Cloud raduis parameter
 float Vel = 0.1;		//Cloud points velocity parameter
 int bandRad = 2;		//Band index in spectrum, affecting Rad value
 int bandVel = 100;		//Band index in spectrum, affecting Vel value
-
-const int n = 300;		//Number of cloud points
-
-//Offsets for Perlin noise calculation for points
-float tx[n], ty[n];
-ofPoint p[n];			//Cloud's points positions
-
-float time0 = 0;		//Time value, used for dt computing
 
 //--------------------------------------------------------------
 void ofApp::setup()
@@ -39,30 +31,27 @@ void ofApp::setup()
     grayThreshNear.allocate(kinect.width, kinect.height);
     grayThreshFar.allocate(kinect.width, kinect.height);
 
-    nearThreshold = 252.45;
-    farThreshold = 196.35;
+    nearThreshold = 230;
+    farThreshold = 128.75;
     bThreshWithOpenCV = true;
 
     ofSetFrameRate(60);
 
     // zero the tilt on startup
-    angle = 3;
-    kinect.setCameraTiltAngle(angle);
+    //angle = 3;
+    //kinect.setCameraTiltAngle(angle);
 
     kpt.loadCalibration("calibration_data/calibration.xml");
 
     //sounds
-//    planet0.load("sounds/1085.mp3");
-//    planet1.load("sounds/1085.mp3");
-//    planet2.load("sounds/Violet.mp3");
-
-//    for (int i = 0; i < planet0.size(); i++) {
-//        planet0[i].load("sounds/" + to_string(i) + ".mp3");
-//    }
-    for (int i = 0; i < 9; i++) {
-        for (int j = 0; j < 6; j++) {
+    for (int i = 0; i < NPLANETS; i++) {
+        for (int j = 0; j < NTRACKS; j++) {
             sounds[i][j].load("sounds/" + to_string(i) + "_" + to_string(j) + ".mp3");
-            sounds[i][j].setLoop(true);
+            if (i != 4) {
+                sounds[i][j].setLoop(true);
+            } else {
+                sounds[i][j].setLoop(false);
+            }
         }
     }
 
@@ -71,12 +60,19 @@ void ofApp::setup()
     receiver.setup(12000);
 
     // grid
+    gridBG.load("sprites/gridBackground.png");
+    front_grid.load("sprites/front_grid.png");
+    front_glow.load("sprites/front_glow.png");
+    headline.load("sprites/Headline.png");
+    instruction.load("sprites/Instruction.png");
+    code.load("sprites/Code.png");
+    radioWave.load("sprites/Radiowave.png");
+    frame.load("sprites/Frame.png");
+    ring.load("sprites/Ring.png");
+    star_back.load("sprites/Stars.png");
     for(int i=0; i<NGRIDS; i++){
         grids[i].setup(i);
     }
-
-    // fonts
-    font.load("fonts/BEBAS.ttf", 42);
 
     // state
     state = "start";
@@ -88,12 +84,23 @@ void ofApp::setup()
     for (int i=0; i<N; i++) {
         spectrum[i] = 0.0f;
     }
-
-    //Initialize points offsets by random numbers
-    for ( int j=0; j<n; j++ ) {
-        tx[j] = ofRandom( 0, 1000 );
-        ty[j] = ofRandom( 0, 1000 );
+    
+    // not start showing animation on front screen
+    animation = false;
+    for (int i = 0; i < 9; i++) {
+        video[i].load("videos/" + to_string(i) + ".mp4");
+        planet_name[i].load("sprites/planets_name/" + to_string(i) + ".png");
     }
+    //set currentposition = 4 to avoid show the first vedio at the beginning
+    currentPosition = 4;
+    video[currentPosition].play();
+    probe.load("videos/Probe.mp4");
+    probe.play();
+    //soundWave.load("videos/Soundwave.mp4");
+    //soundWave.play();
+    up = false;
+    timer = 0;
+
 }
 
 //--------------------------------------------------------------
@@ -156,32 +163,40 @@ void ofApp::update()
         spectrum[i] *= 0.97;	//Slow decreasing
         spectrum[i] = max( spectrum[i], val[i] );
     }
-
-    //Update particles using spectrum values
-
-    //Computing dt as a time between the last
-    //and the current calling of update()
-    float time = ofGetElapsedTimef();
-    float dt = time - time0;
-    dt = ofClamp( dt, 0.0, 0.1 );
-    time0 = time; //Store the current time
-
-    //Update Rad and Vel from spectrum
-    //Note, the parameters in ofMap's were tuned for best result
-    //just for current music track
-    Rad = ofMap( spectrum[ bandRad ], 1, 3, 400, 800, true );
-    Vel = ofMap( spectrum[ bandVel ], 0, 0.1, 0.05, 0.5 );
-
-    //Update particles positions
-    for (int j=0; j<n; j++) {
-        tx[j] += Vel * dt;	//move offset
-        ty[j] += Vel * dt;	//move offset
-        //Calculate Perlin's noise in [-1, 1] and
-        //multiply on Rad
-        p[j].x = ofSignedNoise( tx[j] ) * Rad;
-        p[j].y = ofSignedNoise( ty[j] ) * Rad;
+    
+    waveform.clear();
+//    450, 334, 350, 100
+    //420, 334, 280, 100
+    for(size_t i = 0; i < N; i++) {
+        float x = ofMap(i, 20, 0, 420, 420 + 280);
+        float y = ofMap(spectrum[i], 0, 1, 334, 334 + 100);
+        if (x >= 420 && x <= 420 + 20 ) {
+            y = 384;
+        }
+        if (x >= 420 && x <= 420 + 280) {
+            waveform.addVertex(x, y);
+        }
     }
 
+    //update video
+    video[currentPosition].update();
+    probe.update();
+    
+    //update timer for flash instruction
+    if(state == "play" && currentPosition == 4)
+    {
+        if(currentPosition != originalPosition)
+        {
+            timer = 0;
+            up = false;
+        }
+        blinkTimer();
+        
+    }
+    if(currentPosition != 4)
+    {
+        up = false;
+    }
 }
 
 void ofApp::sendMessage(string m) {
@@ -242,24 +257,30 @@ void ofApp::drawGroundWindow (ofEventArgs & args)
     ofSetBackgroundColor(0, 0, 0);
 
     if (state == "start") {
-        start.draw(364, 236, 236, 236);
+        start.draw(128 + 250, 250, 268, 268);
     } else if (state == "play") {
+        gridBG.draw(128, 0);
         for(int i=0; i<NGRIDS; i++){
             grids[i].draw();
         }
     }
 
     RectTracker& tracker = contourFinder.getTracker();
+// uncomment this when runing with kinect
+//    if (contourFinder.size() == 0) {
+//        state = "start";
+//    }
+    countTimerForAlert();
     for(int i = 0; i < contourFinder.size(); i++) {
         vector<cv::Point> points = contourFinder.getContour(i);
         int label = contourFinder.getLabel(i);
         ofPoint center = toOf(contourFinder.getCenter(i));
         int age = tracker.getAge(label);
 
-        ofSetColor(ofColor::green);
+        //ofSetColor(ofColor::green);
         ofVec3f worldPoint = kinect.getWorldCoordinateAt(center.x, center.y);
         ofVec2f projectedPoint = kpt.getProjectedPoint(worldPoint);
-        ofDrawCircle(GROUND_PROJECTOR_RESOLUTION_X * projectedPoint.x, GROUND_PROJECTOR_RESOLUTION_Y * projectedPoint.y, 50);
+        //ofDrawCircle(GROUND_PROJECTOR_RESOLUTION_X * projectedPoint.x, GROUND_PROJECTOR_RESOLUTION_Y * projectedPoint.y, 50);
         //ofLog() << projectedPoint << endl;
 
         ofVec2f point = ofVec2f (projectedPoint.x * GROUND_PROJECTOR_RESOLUTION_X, projectedPoint.y * GROUND_PROJECTOR_RESOLUTION_Y);
@@ -269,8 +290,7 @@ void ofApp::drawGroundWindow (ofEventArgs & args)
 
 
     //=======UNCOMMENT THIS PART TO TEST RESPONDING GRIDS========
-    drawDot();
-
+    //drawDot();
 }
 
 void ofApp::drawDot()
@@ -286,63 +306,59 @@ void ofApp::drawDot()
 
 void ofApp::drawFrontWindow(ofEventArgs& args)
 {
-    for (int i = 0; i < 9; i++) {
-        if (sounds[i][0].isPlaying()) {
-            ofBackground( 255, 255, 255 );	//Set up the background
-
-            //Draw background rect for spectrum
-            ofSetColor( 230, 230, 230 );
-            ofFill();
-            ofRect( 10, 700, N * 6, -100 );
-
-            //Draw spectrum
-            ofSetColor( 0, 0, 0 );
-            for (int i=0; i<N; i++) {
-                //Draw bandRad and bandVel by black color,
-                //and other by gray color
-                if ( i == bandRad || i == bandVel ) {
-                    ofSetColor( 0, 0, 0 ); //Black color
-                }
-                else {
-                    ofSetColor( 128, 128, 128 ); //Gray color
-                }
-                ofRect( 10 + i * 5, 700, 3, -spectrum[i] * 100 );
-            }
-
-            //Draw cloud
-
-            //Move center of coordinate system to the screen center
-            ofPushMatrix();
-            ofTranslate( ofGetWidth() / 2, ofGetHeight() / 2 );
-
-            //Draw points
-            ofSetColor( 0, 0, 0 );
-            ofFill();
-            for (int i=0; i<n; i++) {
-                ofCircle( p[i], 2 );
-            }
-
-            //Draw lines between near points
-            float dist = 40;	//Threshold parameter of distance
-            for (int j=0; j<n; j++) {
-                for (int k=j+1; k<n; k++) {
-                    if ( ofDist( p[j].x, p[j].y, p[k].x, p[k].y )
-                        < dist ) {
-                        ofLine( p[j], p[k] );
-                    }
-                }
-            }
-
-            //Restore coordinate system
-            ofPopMatrix();
-        }
+    //add animation part according to the currentposition
+    ofBackground( 0, 0, 0, 128 );
+    star_back.draw(0, 0, ofGetWindowWidth(), ofGetWindowHeight());
+    
+    //before play state
+    frame.draw(0, 0, ofGetWindowWidth(), ofGetWindowHeight());
+    probe.draw(350, 314, 70, 140);
+    front_grid.draw(700, 284, 200, 200);
+    headline.draw(290, 95, 430, 40);
+    ring.draw(100, 284, 200, 200);
+    //give player instruction to step on grid
+    if(up == true)
+    {
+        instruction.draw(300, 125, 400, 50 );
+        
     }
-}
+    
+    //after step on any grid
+    if(animation == true)
+    {
+        //avoid the repeat playing static video without animation
+        if(!video[currentPosition].isPlaying())
+        {
+            
+            video[currentPosition].play();
+            
+        }
+        //put draw outside to avoid disppear
+        video[currentPosition].draw(100, 284, 200, 200);
+        planet_name[currentPosition].draw(150, 550, 100, 25);
+        front_glow.draw(700 + ((currentPosition % 3) * 200 / 3), 284 + (floor(currentPosition / 3) * 200 / 3) , 200 / 3, 200/ 3 );
+        if(currentPosition != 4)
+        {
+            radioWave.draw(250, 284, 150, 200);
+            //soundWave.draw(420, 334, 280, 100);
+            code.draw(350, 570, 420, 100);
+            ofSetColor(0, 255, 0);
+            waveform.draw();
+            ofSetColor(255, 255, 255);
+        }
+        
+    }
+    
+    if(currentPosition == 4)
+    {
+        front_glow.draw(700 + 200 / 3, 284 + 200 / 3, 200 / 3, 200 / 3);
+        
+    }}
 
 //--------------------------------------------------------------
 void ofApp::exit()
 {
-    kinect.setCameraTiltAngle(3); // zero the tilt on exit
+    //kinect.setCameraTiltAngle(3); // zero the tilt on exit
     kinect.close();
 }
 
@@ -463,7 +479,7 @@ void ofApp::checkPoint(ofVec2f point)
 
     if (state == "start") {
 
-        if (point.x >= (128 + 236 + 20) && point.x <= (128 + 236 + 20 + 216) && point.y >= (236 + 20) && point.y <= (236 + 20 + 216)) {
+        if (point.x >= (128 + 250) && point.x <= (128 + 250 + 268) && point.y >= 250 && point.y <= (250 + 268)) {
             cp = 1;
         } else {
             cp = 0;
@@ -480,13 +496,14 @@ void ofApp::checkPoint(ofVec2f point)
             dt = ofGetElapsedTimef() - startTime;
             if (dt >= TIME_DELAY) {
                 state = "play";
+                startTimeForAlertTimer = ofGetElapsedTimef();
             }
         }
+
 
     } else if (state == "play") {
         for (int i = 0; i < NGRIDS; i++) {
             cp = grids[i].getCurrentPosition(point);
-
             if (cp >= 0) {
                 currentPosition = cp;
             }
@@ -499,21 +516,26 @@ void ofApp::checkPoint(ofVec2f point)
             }
             stopSound();
             originalPosition = -2;
+            animation = false;
+            startTimeForAlertTimer = ofGetElapsedTimef();
 
-            // New timer
+            // New timer when jump into another different grid
         } else if (originalPosition != currentPosition) {
             stopSound();
             startTime = ofGetElapsedTimef();
             originalPosition = currentPosition;
+            animation = false;
+            startTimeForAlertTimer = ofGetElapsedTimef();
 
             // Still there
         } else if (originalPosition == currentPosition) {
-            dt = ofGetElapsedTimef() - startTime;
+            //dt = ofGetElapsedTimef() - startTime;
 
-            if(dt >= TIME_DELAY) {
+            //if(dt >= TIME_DELAY) {
                 playSound();
                 grids[currentPosition].light();
-            }
+                animation = true;
+            //}
 
         }
     }
@@ -522,17 +544,68 @@ void ofApp::checkPoint(ofVec2f point)
 void ofApp::playSound()
 {
     if (!sounds[currentPosition][0].isPlaying()) {
-        sounds[currentPosition][0].play();
+        if (currentPosition == 4) {
+            if (played == false) {
+                sounds[currentPosition][0].play();
+                played = true;
+            }
+        } else {
+            sounds[currentPosition][0].play();
+        }
     }
 }
 
 void ofApp::stopSound()
 {
-    for (int i = 0; i < 9; i ++) {
-        for (int j = 0; j < 6; j++) {
+    for (int i = 0; i < NPLANETS; i ++) {
+        for (int j = 0; j < NTRACKS; j++) {
             if (sounds[i][j].isPlaying()) {
                 sounds[i][j].stop();
             }
         }
+    }
+}
+
+void ofApp::countTimerForAlert()
+{
+    
+    float curTime = ofGetElapsedTimef();
+    float dt = curTime - startTimeForAlertTimer;
+    float aniTime = 0.5;
+    int r;
+
+    if (dt >= TIME_ALERT) {
+        //Glowing randomly!!
+        r = (int)floor(dt / aniTime);
+        if (r != oldRForAlert) {
+            do {
+                posForAlert = ofRandom(0, NGRIDS);
+            } while (posForAlert == currentPosition || posForAlert == 4);
+            oldRForAlert = r;
+        }
+        grids[posForAlert].glow(curTime);
+    }
+}
+
+//not put any local varible to time, will cause problem
+void ofApp::blinkTimer()
+{
+    
+    //timer
+    if(timer <= 0)
+    {
+        up = true;
+    }
+    if (timer >= 1)
+    {
+        up = false;
+    }
+    if(up == true)
+    {
+        timer += ofGetLastFrameTime() * 10;
+    }
+    if (up == false)
+    {
+        timer -= ofGetLastFrameTime() * 10;
     }
 }
