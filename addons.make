@@ -1,5 +1,5 @@
+ofxCv
 ofxKinect
+ofxKinectProjectorToolkit
 ofxOpenCv
 ofxOsc
-ofxKinectProjectorToolkit
-ofxCv
