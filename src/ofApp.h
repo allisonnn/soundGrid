@@ -12,13 +12,10 @@
 #define GROUND_PROJECTOR_RESOLUTION_Y 768
 #define FRONT_PROJECTOR_RESOLUTION_X 1024
 #define FRONT_PROJECTOR_RESOLUTION_Y 768
-#define PORT 8001
-#define IP_ADDRESS "127.0.0.1"
 #define NGRIDS 9
 #define TIME_DELAY 1
 #define TIME_ALERT 3
 #define NPLANETS 9
-#define NTRACKS 6
 
 using namespace ofxCv;
 using namespace cv;
@@ -64,11 +61,7 @@ public:
     ofPoint projectorPoint;
     
     //sounds
-    //ofSoundPlayer planet0;
-    //ofSoundPlayer planet1;
-    //ofSoundPlayer planet2;
-    ofSoundPlayer sounds [NPLANETS][NTRACKS];
-    //vector<ofSoundPlayer> planet0;
+    ofSoundPlayer sounds [NPLANETS];
     
     //osc
     ofxOscSender sender;
@@ -92,7 +85,6 @@ public:
     bool animation;
     ofVideoPlayer video[9];
     ofVideoPlayer probe;
-    ofVideoPlayer soundWave;
     ofImage instruction;
     ofImage code;
     ofImage planet_name[9];
@@ -103,17 +95,10 @@ public:
     ofImage front_glow;
     ofImage ring;
     ofImage star_back;
-    //float pos_co;
-    //float pos_cd;
-    //float moveSpeed = 100;
-    //float upSpeed = 40;
-    //float c_r = 100;
+
     bool wave = false;
-    //bool show;
     bool up;
     void blinkTimer();
-    //float blink_dt;
-    //float blink_start;
     float timer;
     ofTrueTypeFont font;
     
@@ -123,10 +108,13 @@ public:
     
     float startTime;
     bool played = false;
+
+private:
     ofPolyline waveform;
-    
     float startTimeForAlertTimer;
     void countTimerForAlert();
     int posForAlert;
     int oldRForAlert;
+    float startTimeForNoContour;
+    bool stillWaiting = false;
 };

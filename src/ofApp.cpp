@@ -37,27 +37,18 @@ void ofApp::setup()
 
     ofSetFrameRate(60);
 
-    // zero the tilt on startup
-    //angle = 3;
-    //kinect.setCameraTiltAngle(angle);
-
     kpt.loadCalibration("calibration_data/calibration.xml");
 
     //sounds
     for (int i = 0; i < NPLANETS; i++) {
-        for (int j = 0; j < NTRACKS; j++) {
-            sounds[i][j].load("sounds/" + to_string(i) + "_" + to_string(j) + ".mp3");
+        
+            sounds[i].load("sounds/" + to_string(i) + ".mp3");
             if (i != 4) {
-                sounds[i][j].setLoop(true);
+                sounds[i].setLoop(true);
             } else {
-                sounds[i][j].setLoop(false);
+                sounds[i].setLoop(false);
             }
-        }
     }
-
-    //osc
-    sender.setup(IP_ADDRESS, PORT);
-    receiver.setup(12000);
 
     // grid
     gridBG.load("sprites/gridBackground.png");
@@ -96,8 +87,6 @@ void ofApp::setup()
     video[currentPosition].play();
     probe.load("videos/Probe.mp4");
     probe.play();
-    //soundWave.load("videos/Soundwave.mp4");
-    //soundWave.play();
     up = false;
     timer = 0;
 
@@ -134,17 +123,6 @@ void ofApp::update()
 
     }
 
-    //osc receiver
-    while (receiver.hasWaitingMessages()) {
-        ofxOscMessage receivedMessage;
-        receiver.getNextMessage(&receivedMessage);
-
-        if (receivedMessage.getAddress() == "/digital/8") {
-            int digital = receivedMessage.getArgAsInt(0);
-            ofLogNotice() << digital;
-        }
-    }
-
     // grids
     for (int i = 0; i < NGRIDS; i++ ) {
         grids[i].update();
@@ -165,7 +143,6 @@ void ofApp::update()
     }
     
     waveform.clear();
-//    450, 334, 350, 100
     //420, 334, 280, 100
     for(size_t i = 0; i < N; i++) {
         float x = ofMap(i, 20, 0, 420, 420 + 280);
@@ -197,14 +174,6 @@ void ofApp::update()
     {
         up = false;
     }
-}
-
-void ofApp::sendMessage(string m) {
-    ofxOscMessage message;
-    message.setAddress("/songName");
-    message.addStringArg(m);
-    sender.sendMessage(message);
-    ofLogNotice() << m;
 }
 
 //--------------------------------------------------------------
@@ -266,10 +235,21 @@ void ofApp::drawGroundWindow (ofEventArgs & args)
     }
 
     RectTracker& tracker = contourFinder.getTracker();
+    
 // uncomment this when runing with kinect
 //    if (contourFinder.size() == 0) {
-//        state = "start";
+        if (stillWaiting && state == "play") {
+            if (ofGetElapsedTimef() - startTimeForNoContour >= 5) {
+                state = "start";
+            } else {
+                currentPosition = 4;
+            }
+        } else if (stillWaiting == false && state == "play" && currentPosition < 0) {
+            startTimeForNoContour = ofGetElapsedTimef();
+            stillWaiting = true;
+        }
 //    }
+    
     countTimerForAlert();
     for(int i = 0; i < contourFinder.size(); i++) {
         vector<cv::Point> points = contourFinder.getContour(i);
@@ -290,7 +270,7 @@ void ofApp::drawGroundWindow (ofEventArgs & args)
 
 
     //=======UNCOMMENT THIS PART TO TEST RESPONDING GRIDS========
-    //drawDot();
+    drawDot();
 }
 
 void ofApp::drawDot()
@@ -340,7 +320,6 @@ void ofApp::drawFrontWindow(ofEventArgs& args)
         if(currentPosition != 4)
         {
             radioWave.draw(250, 284, 150, 200);
-            //soundWave.draw(420, 334, 280, 100);
             code.draw(350, 570, 420, 100);
             ofSetColor(0, 255, 0);
             waveform.draw();
@@ -426,13 +405,11 @@ void ofApp::keyPressed (int key)
             break;
 
         case '4':
-//            kinect.setLed(ofxKinect::LED_BLINK_GREEN);
-            sendMessage("hahahahah");
+            kinect.setLed(ofxKinect::LED_BLINK_GREEN);
             break;
 
         case '5':
-//            kinect.setLed(ofxKinect::LED_BLINK_YELLOW_RED);
-            ofLogNotice() << "QQQQQQ" << kinectPoint;
+            kinect.setLed(ofxKinect::LED_BLINK_YELLOW_RED);
             break;
 
         case '0':
@@ -505,7 +482,10 @@ void ofApp::checkPoint(ofVec2f point)
         for (int i = 0; i < NGRIDS; i++) {
             cp = grids[i].getCurrentPosition(point);
             if (cp >= 0) {
+                stillWaiting = false;
                 currentPosition = cp;
+            } else {
+                
             }
         }
 
@@ -529,28 +509,23 @@ void ofApp::checkPoint(ofVec2f point)
 
             // Still there
         } else if (originalPosition == currentPosition) {
-            //dt = ofGetElapsedTimef() - startTime;
-
-            //if(dt >= TIME_DELAY) {
-                playSound();
-                grids[currentPosition].light();
-                animation = true;
-            //}
-
+            playSound();
+            grids[currentPosition].light();
+            animation = true;
         }
     }
 }
 
 void ofApp::playSound()
 {
-    if (!sounds[currentPosition][0].isPlaying()) {
+    if (!sounds[currentPosition].isPlaying()) {
         if (currentPosition == 4) {
             if (played == false) {
-                sounds[currentPosition][0].play();
+                sounds[currentPosition].play();
                 played = true;
             }
         } else {
-            sounds[currentPosition][0].play();
+            sounds[currentPosition].play();
         }
     }
 }
@@ -558,10 +533,8 @@ void ofApp::playSound()
 void ofApp::stopSound()
 {
     for (int i = 0; i < NPLANETS; i ++) {
-        for (int j = 0; j < NTRACKS; j++) {
-            if (sounds[i][j].isPlaying()) {
-                sounds[i][j].stop();
-            }
+        if (sounds[i].isPlaying()) {
+            sounds[i].stop();
         }
     }
 }
