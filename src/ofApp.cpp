@@ -79,7 +79,11 @@ void ofApp::setup()
     // not start showing animation on front screen
     animation = false;
     for (int i = 0; i < 9; i++) {
-        video[i].load("videos/" + to_string(i) + ".mp4");
+        if (i == 6) {
+            video[i].load("videos/" + to_string(i) + ".mov");
+        } else {
+            video[i].load("videos/" + to_string(i) + ".mp4");
+        }
         planet_name[i].load("sprites/planets_name/" + to_string(i) + ".png");
     }
     //load the dot animation file
@@ -350,7 +354,7 @@ void ofApp::drawFrontWindow(ofEventArgs& args)
         if(currentPosition != 4)
         {
             radioWave.draw(250, 284, 150, 200);
-            code.draw(350, 570, 420, 100);
+            code.draw(375, 553, 410, 86);
             dot[dotCur].draw(0,0,ofGetWindowWidth(), ofGetWindowHeight());
             ofSetColor(0, 255, 0);
             waveform.draw();
@@ -368,7 +372,6 @@ void ofApp::drawFrontWindow(ofEventArgs& args)
 //--------------------------------------------------------------
 void ofApp::exit()
 {
-    //kinect.setCameraTiltAngle(3); // zero the tilt on exit
     kinect.close();
 }
 
