@@ -422,8 +422,8 @@ void ofApp::keyPressed (int key)
             break;
 
         case 'c':
-            kinect.setCameraTiltAngle(0); // zero the tilt
-            kinect.close();
+            state = "start";
+            played = false;
             break;
 
         case '1':
