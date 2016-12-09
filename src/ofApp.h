@@ -5,18 +5,19 @@
 #include "ofxCv.h"
 #include "ofxKinect.h"
 #include "ofxKinectProjectorToolkit.h"
-#include "ofxOsc.h"
 #include "Grid.h"
 
 #define GROUND_PROJECTOR_RESOLUTION_X 1024
 #define GROUND_PROJECTOR_RESOLUTION_Y 768
 #define FRONT_PROJECTOR_RESOLUTION_X 1024
 #define FRONT_PROJECTOR_RESOLUTION_Y 768
-#define PORT 8001
-#define IP_ADDRESS "127.0.0.1"
 #define NGRIDS 9
-#define NTRACKS 5
 #define TIME_DELAY 1
+#define TIME_ALERT 3
+#define NPLANETS 9
+
+#define NEARTHRESHOLD 230
+#define FARTHRESHOLD 128.75
 
 using namespace ofxCv;
 using namespace cv;
@@ -28,17 +29,9 @@ public:
     void update();
     void draw();
     void drawGroundWindow(ofEventArgs& args);
+    void drawFrontWindow(ofEventArgs& args);
     void exit();
-    void exitGroundWindow(ofEventArgs& args);
-    
-    void drawPointCloud();
-    
     void keyPressed(int key);
-    void mouseMoved(int x, int y);
-    void mouseMovedGroundWindow(ofMouseEventArgs& args);
-    void windowResized(int w, int h);
-    
-    void sendMessage(string m);
     
     ofxKinect kinect;
     ofxKinectProjectorToolkit kpt;
@@ -50,31 +43,19 @@ public:
     ofxCvGrayscaleImage grayThreshNear; // the near thresholded image
     ofxCvGrayscaleImage grayThreshFar; // the far thresholded image
     
-    bool bThreshWithOpenCV;
-    
     int nearThreshold;
     int farThreshold;
-    
-    int angle;
     
     ofPoint kinectPoint;
     ofPoint projectorPoint;
     
     //sounds
-    //ofSoundPlayer planet0;
-    //ofSoundPlayer planet1;
-    //ofSoundPlayer planet2;
-    ofSoundPlayer sounds [5][5];
-    //vector<ofSoundPlayer> planet0;
-    
-    //osc
-    ofxOscSender sender;
-    ofxOscReceiver receiver;
+    ofSoundPlayer sounds [NPLANETS];
     
     //grid
     Grid grids[NGRIDS];
-    
-    ofPath cursor;
+    ofImage gridBG;
+
     int currentPosition;
     int originalPosition;
     
@@ -84,6 +65,29 @@ public:
     
     string state;
     
+    //add for the animation part
+    bool animation;
+    ofVideoPlayer video[9];
+    ofVideoPlayer probe;
+    ofImage instruction;
+    ofImage code;
+    ofImage planet_name[9];
+    ofImage headline;
+    ofImage radioWave;
+    ofImage frame;
+    ofImage front_grid;
+    ofImage front_glow;
+    ofImage ring;
+    ofImage star_back;
+    
+    ofImage dot[41];
+
+    bool wave = false;
+    bool up;
+    void blinkTimer();
+    float timer;
+    int dotCur;
+
     ofTrueTypeFont font;
     
     ofImage start;
@@ -91,4 +95,14 @@ public:
     void drawDot();
     
     float startTime;
+    bool played = false;
+
+private:
+    ofPolyline waveform;
+    float startTimeForAlertTimer;
+    void countTimerForAlert();
+    int posForAlert;
+    int oldRForAlert;
+    float startTimeForNoContour;
+    bool stillWaiting = false;
 };

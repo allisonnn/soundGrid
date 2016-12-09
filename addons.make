@@ -2,4 +2,3 @@ ofxCv
 ofxKinect
 ofxKinectProjectorToolkit
 ofxOpenCv
-ofxOsc
