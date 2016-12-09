@@ -24,11 +24,7 @@ void Grid::setup(int _pos)
     gridGlow.load("sprites/gridGlow.png");
     if (gridPos != 4) {
         planetImage.load("sprites/planets/" + to_string(gridPos) + ".png");
-        if (gridPos == 6) {
-            video.load("videos/" + to_string(gridPos) + ".mov");
-        } else {
-            video.load("videos/" + to_string(gridPos) + ".mp4");
-        }
+        video.load("videos/" + to_string(gridPos) + ".mp4");
         video.play();
     }
 }

@@ -5,7 +5,6 @@
 #include "ofxCv.h"
 #include "ofxKinect.h"
 #include "ofxKinectProjectorToolkit.h"
-#include "ofxOsc.h"
 #include "Grid.h"
 
 #define GROUND_PROJECTOR_RESOLUTION_X 1024
@@ -16,6 +15,9 @@
 #define TIME_DELAY 1
 #define TIME_ALERT 3
 #define NPLANETS 9
+
+#define NEARTHRESHOLD 230
+#define FARTHRESHOLD 128.75
 
 using namespace ofxCv;
 using namespace cv;
@@ -29,16 +31,7 @@ public:
     void drawGroundWindow(ofEventArgs& args);
     void drawFrontWindow(ofEventArgs& args);
     void exit();
-    void exitGroundWindow(ofEventArgs& args);
-    
-    void drawPointCloud();
-    
     void keyPressed(int key);
-    void mouseMoved(int x, int y);
-    void mouseMovedGroundWindow(ofMouseEventArgs& args);
-    void windowResized(int w, int h);
-    
-    void sendMessage(string m);
     
     ofxKinect kinect;
     ofxKinectProjectorToolkit kpt;
@@ -50,12 +43,8 @@ public:
     ofxCvGrayscaleImage grayThreshNear; // the near thresholded image
     ofxCvGrayscaleImage grayThreshFar; // the far thresholded image
     
-    bool bThreshWithOpenCV;
-    
     int nearThreshold;
     int farThreshold;
-    
-    int angle;
     
     ofPoint kinectPoint;
     ofPoint projectorPoint;
@@ -63,15 +52,10 @@ public:
     //sounds
     ofSoundPlayer sounds [NPLANETS];
     
-    //osc
-    ofxOscSender sender;
-    ofxOscReceiver receiver;
-    
     //grid
     Grid grids[NGRIDS];
     ofImage gridBG;
-    
-    ofPath cursor;
+
     int currentPosition;
     int originalPosition;
     

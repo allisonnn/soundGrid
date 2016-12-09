@@ -2,10 +2,6 @@
 
 const int N = 360;		//Number of bands in spectrum
 float spectrum[ N ];	//Smoothed spectrum values
-float Rad = 500;		//Cloud raduis parameter
-float Vel = 0.1;		//Cloud points velocity parameter
-int bandRad = 2;		//Band index in spectrum, affecting Rad value
-int bandVel = 100;		//Band index in spectrum, affecting Vel value
 
 //--------------------------------------------------------------
 void ofApp::setup()
@@ -31,9 +27,8 @@ void ofApp::setup()
     grayThreshNear.allocate(kinect.width, kinect.height);
     grayThreshFar.allocate(kinect.width, kinect.height);
 
-    nearThreshold = 230;
-    farThreshold = 128.75;
-    bThreshWithOpenCV = true;
+    nearThreshold = NEARTHRESHOLD;
+    farThreshold = FARTHRESHOLD;
 
     ofSetFrameRate(60);
 
@@ -79,11 +74,7 @@ void ofApp::setup()
     // not start showing animation on front screen
     animation = false;
     for (int i = 0; i < 9; i++) {
-        if (i == 6) {
-            video[i].load("videos/" + to_string(i) + ".mov");
-        } else {
-            video[i].load("videos/" + to_string(i) + ".mp4");
-        }
+        video[i].load("videos/" + to_string(i) + ".mp4");
         planet_name[i].load("sprites/planets_name/" + to_string(i) + ".png");
     }
     //load the dot animation file
@@ -153,7 +144,6 @@ void ofApp::update()
     }
     
     waveform.clear();
-    //420, 334, 280, 100
     for(size_t i = 0; i < N; i++) {
         float x = ofMap(i, 20, 0, 420, 420 + 280);
         float y = ofMap(spectrum[i], 0, 1, 334, 334 + 100);
@@ -220,8 +210,6 @@ void ofApp::draw()
     kinect.drawDepth(kinect.width + 10, 0, kinect.width/2, kinect.height/2);
     kinect.draw(kinect.width + 10, kinect.height/2 + 10, kinect.width/2, kinect.height/2);
 
-    //grayImage.draw(0, 0, kinect.width, kinect.height);
-
     //https://forum.openframeworks.cc/t/opencv-problem-finding-blob-centroid/16949/4
     grayImage.draw(0, 0);
     contourFinder.draw();
@@ -240,16 +228,9 @@ void ofApp::draw()
         << "motor / led / accel controls are not currently supported" << endl << endl;
     }
 
-//    reportStream << "using opencv threshold = " << bThreshWithOpenCV <<" (press spacebar)" << endl
-//    << "set near threshold " << nearThreshold << " (press: + -)" << endl
-//    << "set far threshold " << farThreshold << " (press: < >) num blobs found " << contourFinder.nBlobs
-//    << ", fps: " << ofGetFrameRate() << endl
-//    << "press c to close the connection and o to open it again, connection is: " << kinect.isConnected() << endl;
-
-    if(kinect.hasCamTiltControl()) {
-        reportStream << "press UP and DOWN to change the tilt angle: " << angle << " degrees" << endl
-        << "press 1-5 & 0 to change the led mode" << endl;
-    }
+    reportStream << "set near threshold " << nearThreshold << " (press: + -)" << endl
+    << "set far threshold " << farThreshold << " (press: < >) " << endl
+    << "press c to restart " << endl;
 
     ofDrawBitmapString(reportStream.str(), 20, 652);
 }
@@ -270,19 +251,19 @@ void ofApp::drawGroundWindow (ofEventArgs & args)
 
     RectTracker& tracker = contourFinder.getTracker();
     
-// uncomment this when runing with kinect
-//    if (contourFinder.size() == 0) {
-        if (stillWaiting && state == "play") {
-            if (ofGetElapsedTimef() - startTimeForNoContour >= 5) {
-                state = "start";
-            } else {
-                currentPosition = 4;
-            }
-        } else if (stillWaiting == false && state == "play" && currentPosition < 0) {
-            startTimeForNoContour = ofGetElapsedTimef();
-            stillWaiting = true;
+
+    //restart condition
+    if (stillWaiting && state == "play") {
+        if (ofGetElapsedTimef() - startTimeForNoContour >= 5) {
+            state = "start";
+        } else {
+            currentPosition = 4;
         }
-//    }
+    } else if (stillWaiting == false && state == "play" && currentPosition < 0) {
+        startTimeForNoContour = ofGetElapsedTimef();
+        stillWaiting = true;
+    }
+
     
     countTimerForAlert();
     for(int i = 0; i < contourFinder.size(); i++) {
@@ -291,11 +272,8 @@ void ofApp::drawGroundWindow (ofEventArgs & args)
         ofPoint center = toOf(contourFinder.getCenter(i));
         int age = tracker.getAge(label);
 
-        //ofSetColor(ofColor::green);
         ofVec3f worldPoint = kinect.getWorldCoordinateAt(center.x, center.y);
         ofVec2f projectedPoint = kpt.getProjectedPoint(worldPoint);
-        //ofDrawCircle(GROUND_PROJECTOR_RESOLUTION_X * projectedPoint.x, GROUND_PROJECTOR_RESOLUTION_Y * projectedPoint.y, 50);
-        //ofLog() << projectedPoint << endl;
 
         ofVec2f point = ofVec2f (projectedPoint.x * GROUND_PROJECTOR_RESOLUTION_X, projectedPoint.y * GROUND_PROJECTOR_RESOLUTION_Y);
         checkPoint(point);
@@ -312,8 +290,6 @@ void ofApp::drawDot()
     int x = ofGetMouseX();
     int y = ofGetMouseY();
 
-    // TODO:: why uncomment it will cover the screen
-    //ofSetColor(0, 0, 230);
     ofDrawCircle(x, y, 5);
     checkPoint(ofVec2f (x, y));
 }
@@ -367,7 +343,8 @@ void ofApp::drawFrontWindow(ofEventArgs& args)
     {
         front_glow.draw(700 + 200 / 3, 284 + 200 / 3, 200 / 3, 200 / 3);
         
-    }}
+    }
+}
 
 //--------------------------------------------------------------
 void ofApp::exit()
@@ -376,19 +353,9 @@ void ofApp::exit()
 }
 
 //--------------------------------------------------------------
-void ofApp::exitGroundWindow(ofEventArgs &args)
-{
-
-}
-
-//--------------------------------------------------------------
 void ofApp::keyPressed (int key)
 {
     switch (key) {
-        case ' ':
-            bThreshWithOpenCV = !bThreshWithOpenCV;
-            break;
-
         case '>':
         case '.':
             farThreshold ++;
@@ -412,73 +379,11 @@ void ofApp::keyPressed (int key)
             if (nearThreshold < 0) nearThreshold = 0;
             break;
 
-        case 'w':
-            kinect.enableDepthNearValueWhite(!kinect.isDepthNearValueWhite());
-            break;
-
-        case 'o':
-            kinect.setCameraTiltAngle(angle); // go back to prev tilt
-            kinect.open();
-            break;
-
         case 'c':
             state = "start";
             played = false;
             break;
-
-        case '1':
-            kinect.setLed(ofxKinect::LED_GREEN);
-            break;
-
-        case '2':
-            kinect.setLed(ofxKinect::LED_YELLOW);
-            break;
-
-        case '3':
-            kinect.setLed(ofxKinect::LED_RED);
-            break;
-
-        case '4':
-            kinect.setLed(ofxKinect::LED_BLINK_GREEN);
-            break;
-
-        case '5':
-            kinect.setLed(ofxKinect::LED_BLINK_YELLOW_RED);
-            break;
-
-        case '0':
-            kinect.setLed(ofxKinect::LED_OFF);
-            break;
-
-        case OF_KEY_UP:
-            angle++;
-            if(angle>30) angle=30;
-            kinect.setCameraTiltAngle(angle);
-            break;
-
-        case OF_KEY_DOWN:
-            angle--;
-            if(angle<-30) angle=-30;
-            kinect.setCameraTiltAngle(angle);
-            break;
     }
-}
-
-//--------------------------------------------------------------
-void ofApp::mouseMoved(int x, int y)
-{
-
-}
-
-void ofApp::mouseMovedGroundWindow (ofMouseEventArgs& args)
-{
-
-}
-
-//--------------------------------------------------------------
-void ofApp::windowResized(int w, int h)
-{
-
 }
 
 //--------------------------------------------------------------

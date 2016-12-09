@@ -38,9 +38,6 @@ int main( ){
     //replace the draw method with drawFrontWindow method instead
     shared_ptr<ofApp> mainApp(new ofApp);
     ofAddListener(groundWindow->events().draw, mainApp.get(), &ofApp::drawGroundWindow);
-    ofAddListener(groundWindow->events().exit, mainApp.get(), &ofApp::exitGroundWindow);
-    ofAddListener(groundWindow->events().mouseMoved, mainApp.get(),
-                  &ofApp::mouseMovedGroundWindow);
     ofAddListener(frontWindow->events().draw, mainApp.get(), &ofApp::drawFrontWindow);
     
     ofRunApp(mainWindow, mainApp);
